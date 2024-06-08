@@ -5,7 +5,7 @@ import { Box, Flex, Heading, Text, VStack } from '@chakra-ui/layout';
 import { useEffect, useState } from 'react';
 
 type NewSpaceComponentProps = Readonly<{
-    onCreateSpace: (name: string, tabs: chrome.tabs.Tab[]) => void
+    onCreateSpace: (name: string) => void
     onCancel: () => void
 }>;
 
@@ -41,14 +41,6 @@ function SpacesLogo() {
 
 function NewSpaceComponent(props: NewSpaceComponentProps) {
     const [name, setName] = useState<string>("");
-    const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-    const [copyTabs, setCopyTabs] = useState(false);
-
-    useEffect(() => {
-        chrome.tabs.query({ currentWindow: true }, (tabs) => {
-            setTabs(tabs);
-        });
-    }, [])
 
     return (
         <Flex height="100%" grow={1} direction="column" justifyContent="space-between" alignContent={"center"} alignItems={"center"}>
@@ -62,14 +54,11 @@ function NewSpaceComponent(props: NewSpaceComponentProps) {
                     <Input placeholder="Space name...." onChange={(event) => {
                         setName(event.target.value);
                     }} />
-                    {tabs.length > 0 ? <Checkbox size="sm" onChange={(event) => {
-                        setCopyTabs(event.target.checked);
-                    }}>Copy tabs from current window</Checkbox> : null}
                 </VStack>
             </Flex>
             <Flex direction="column" justifySelf="flex-end" justifyContent="space-around" width="100%">
                 <Button variant="solid" size="md" width="100%" onClick={() => {
-                    props.onCreateSpace(name, copyTabs ? tabs : []);
+                    props.onCreateSpace(name);
                 }} isDisabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
                 <Button variant="ghost" size="md" width="100%" _hover={{}} onClick={() => { props.onCancel(); }} sx={{
                     _active: {

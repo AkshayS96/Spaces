@@ -1,10 +1,12 @@
 import { Button, IconButton } from "@chakra-ui/button";
 import { Icon, createIcon } from "@chakra-ui/icon";
 import { AddIcon } from "@chakra-ui/icons";
-import { Divider, Flex, HStack, Stack, VStack } from "@chakra-ui/layout";
+import { Box, Circle, Divider, Flex, HStack, Kbd, Stack, VStack } from "@chakra-ui/layout";
 import { Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
 import { useState } from "react";
-import { MdOutlineCreateNewFolder, MdOutlineSpaceDashboard, MdOutlineTab } from "react-icons/md";
+import { MdArrowBack, MdArrowForward, MdCircle, MdOutlineCreateNewFolder, MdOutlineSpaceDashboard, MdOutlineTab } from "react-icons/md";
+import { SpacesData } from "./Types";
+import { Tooltip } from "@chakra-ui/tooltip";
 
 type PopoverProps = Readonly<{
     onNewSpace?: () => void,
@@ -14,7 +16,9 @@ type PopoverProps = Readonly<{
 }>;
 
 
-type SpacesProps = Readonly<{}> & PopoverProps;
+type SpacesProps = Readonly<{
+    spaces: SpacesData[],
+}> & PopoverProps;
 
 const MDOutlineNewWindow = createIcon({
     displayName: "New Window",
@@ -28,8 +32,29 @@ function AboutComponent() {
     return <div>About</div>
 }
 
-function SpacesCursorComponent() {
-    return <div>Spaces Cursor</div>
+function SpacesCursorComponent(props: { spaces: SpacesData[] }) {
+    const [selectedId, setSelectedId] = useState<number>(0);
+    const [startIndex, setStartIndex] = useState<number>(0);
+
+    const maxSpaces: number = 3;
+
+    return <HStack maxWidth="80%" justifyContent="center" overflow="scroll" >
+        <IconButton size="sm" aria-label="" icon={<MdArrowBack />} onClick={() => {
+            setStartIndex(Math.max(0, startIndex - 1));
+        }} isDisabled={startIndex === 0} />
+        {props.spaces.slice(startIndex, startIndex + maxSpaces).map((space, index) => {
+            return (
+                <Tooltip borderRadius="10px" label={startIndex + index < 9 ? (<HStack><Box>{space.name}</Box> <Kbd color="black">^+shift+{startIndex + index}</Kbd></HStack>) : space.name}>
+                    <IconButton aria-label="" size="sm" icon={<MdCircle size={10} />} onClick={() => {
+                        setSelectedId(space.id);
+                    }} variant="ghost" />
+                </Tooltip>
+            );
+        })};
+        <IconButton size="sm" aria-label="" icon={<MdArrowForward />} onClick={() => {
+            setStartIndex(Math.min(startIndex + maxSpaces - 1, startIndex + 1));
+        }} isDisabled={startIndex + maxSpaces >= props.spaces.length} />
+    </HStack>
 }
 
 function PopoveChildButtonComponent(props: { iconType: any, label: string, onClick?: () => void }) {
@@ -72,7 +97,7 @@ function SpacesFooter(props: SpacesProps) {
     return (<Flex direction={"column"}>
         <HStack justifyContent={"space-between"}>
             <AboutComponent />
-            <SpacesCursorComponent />
+            <SpacesCursorComponent spaces={props.spaces} />
             <PopoverComponent onNewSpace={props.onNewSpace} onNewFolder={props.onNewFolder} onNewWindow={props.onNewWindow} onNewTab={props.onNewTab} />
         </HStack>
     </Flex>);

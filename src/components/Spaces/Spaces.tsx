@@ -5,52 +5,60 @@ import AppSpaceComponent from './SpaceComponent';
 import { Box, Divider, Flex } from '@chakra-ui/layout';
 import AppSpacesFooter from './SpacesFooter';
 import NewSpaceComponent from './NewSpaceComponent';
+import { SpacesData } from './Types';
 
-type SpacesData = Array<{
-    id: string,
-    name: string,
-    windowId: string,
-    folders: Array<{
-        name: string,
-        tabs: Array<{
-            tabId: number,
-            url: URL,
-            title: string
-        }>
-    }>
-}>;
 
 function Spaces() {
-    const [spaces, setSpaces] = useState<SpacesData>([]);
+    const [spaces, setSpaces] = useState<SpacesData[]>([]);
+    const [currentSpace, setCurrentSpace] = useState<number>(0);
+    const [isCreateSpace, setIsCreateSpace] = useState(false);
 
     useEffect(() => {
         const setupSpaces = async () => {
             // Load up saved spaces
             const result = await chrome.storage.local.get("spaces");
+            let spacesLocal = []
             if (result && result.spaces) {
-                setSpaces(result.spaces);
+                spacesLocal = result.spaces;
             }
+            spacesLocal.push({
+                id: 0,
+                isDefault: true,
+                name: "Default",
+                folders: [],
+            });
+            setSpaces(spacesLocal);
         }
-
         setupSpaces();
-    }, [])
+    }, []);
 
-    const onClick = () => {
-        console.log("soemthing");
-    };
+    const onCreateSpace = (name: string) => {
+        setSpaces([...spaces, {
+            id: spaces.length,
+            name,
+            folders: [],
+            isDefault: false
+        } as any]);
+        setIsCreateSpace(false);
+        setCurrentSpace(spaces.length);
+    }
+
+    const onCreateSpaceCancel = () => {
+        setIsCreateSpace(false);
+    }
 
     // We have spaces data so populate that
     return (
         <Box height="100%" padding={5}>
-            {spaces.length == 0 ?
+            {isCreateSpace ?
                 (
-                    <NewSpaceComponent onCreateSpace={(name, tabs) => { console.log(name, tabs) }} onCancel={() => { console.log("cancel"); }} />
+                    <NewSpaceComponent onCreateSpace={onCreateSpace} onCancel={onCreateSpaceCancel} />
                 ) :
                 (
                     <Flex direction={"column"} alignContent={"space-between"} height={"100%"}>
                         <AppSpaceComponent spaceId={"add"} />
                         <Divider />
-                        <AppSpacesFooter onNewFolder={onClick} onNewSpace={onClick} onNewTab={onClick} onNewWindow={onClick} />
+                        <AppSpacesFooter spaces={spaces} onNewSpace={() => { setIsCreateSpace(true); }} onNewFolder={() => { }} onNewTab={() => { }} onNewWindow={() => { }} />
                     </Flex>
                 )
             }
