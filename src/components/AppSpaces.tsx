@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import AppSpaceComponent from './AppSpace/AppSpaceComponent';
 import { Box, Divider, Flex, HStack, Stack, VStack, Text } from '@chakra-ui/layout';
 import { AddIcon } from '@chakra-ui/icons'
-import { MdOutlineSpaceDashboard, MdOutlineFolderOpen, MdOutlineTab } from "react-icons/md";
+import { MdOutlineSpaceDashboard, MdOutlineFolderOpen, MdOutlineTab, MdCreateNewFolder, MdOutlineCreateNewFolder } from "react-icons/md";
+import { BsWindowPlus } from 'react-icons/bs'
 
 
 
-import { Button, Icon, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger } from '@chakra-ui/react'
+import { Button, Icon, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, createIcon } from '@chakra-ui/react'
 
 type MapType = {
     [id: number]: chrome.tabs.Tab;
@@ -16,6 +17,14 @@ type MapType = {
 type Props = Readonly<{
     spaceIds: string[]
 }>;
+
+const MDOutlineNewWindow = createIcon({
+    displayName: "New Window",
+    viewBox: "0 -960 960 960",
+    path: (
+        <path fill="currentColor" xmlns="http://www.w3.org/2000/svg" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h240v80H200v560h560v-240h80v240q0 33-23.5 56.5T760-120H200Zm440-400v-120H520v-80h120v-120h80v120h120v80H720v120h-80Z" ></path>
+    ),
+});
 
 function AppSpace(props: Props) {
     // const [tabs, setTabs] = useState<MapType>({});
@@ -57,10 +66,6 @@ function AppSpace(props: Props) {
     //     }
     // }, []);
 
-    console.log(props);
-
-    const [isVisible, setIsVisible] = React.useState(true);
-
     return (
         <Box height="100%" padding={5}>
             <Flex direction={"column"} alignContent={"space-between"} height={"100%"}>
@@ -77,10 +82,12 @@ function AppSpace(props: Props) {
                             <PopoverContent as={Stack}>
                                 <PopoverArrow />
                                 <PopoverBody>
-                                    <VStack justify="flex-start" align="stretch">
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineSpaceDashboard} size="xl" />}>New Space</Button>
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineFolderOpen} size="xl" />}>New Folder</Button>
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineTab} size="xl" />}>New Tab</Button>
+                                    <VStack justify="flex-start" align="stretch" spacing={1}>
+                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineSpaceDashboard} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Space</Button>
+                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineCreateNewFolder} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Folder</Button>
+                                        <Divider />
+                                        <Button variant="ghost" leftIcon={<Icon as={MDOutlineNewWindow} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3} >New Window</Button>
+                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineTab} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Tab</Button>
                                     </VStack>
                                 </PopoverBody>
                             </PopoverContent>
