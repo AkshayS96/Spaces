@@ -44,7 +44,7 @@ function Spaces() {
         <Box height="100%" padding={5}>
             {spaces.length == 0 ?
                 (
-                    <NewSpaceComponent />
+                    <NewSpaceComponent onCreateSpace={(name, tabs) => { console.log(name, tabs) }} onCancel={() => { console.log("cancel"); }} />
                 ) :
                 (
                     <Flex direction={"column"} alignContent={"space-between"} height={"100%"}>

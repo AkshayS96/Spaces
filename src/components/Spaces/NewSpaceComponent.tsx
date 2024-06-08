@@ -4,6 +4,11 @@ import { Input, } from '@chakra-ui/input';
 import { Box, Flex, Heading, Text, VStack } from '@chakra-ui/layout';
 import { useEffect, useState } from 'react';
 
+type NewSpaceComponentProps = Readonly<{
+    onCreateSpace: (name: string, tabs: chrome.tabs.Tab[]) => void
+    onCancel: () => void
+}>;
+
 function SpacesLogo() {
     return (
         <Box border={1} borderColor="black" padding="5px">
@@ -34,8 +39,8 @@ function SpacesLogo() {
 }
 
 
-function NewSpaceComponent() {
-    const [name, setName] = useState<string>();
+function NewSpaceComponent(props: NewSpaceComponentProps) {
+    const [name, setName] = useState<string>("");
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
     const [copyTabs, setCopyTabs] = useState(false);
 
@@ -63,8 +68,14 @@ function NewSpaceComponent() {
                 </VStack>
             </Flex>
             <Flex direction="column" justifySelf="flex-end" justifyContent="space-around" width="100%">
-                <Button variant="solid" size="md" width="100%">Create Space</Button>
-                <Button variant="ghost" size="md" width="100%" _hover={{}}>Cancel</Button>
+                <Button variant="solid" size="md" width="100%" onClick={() => {
+                    props.onCreateSpace(name, copyTabs ? tabs : []);
+                }} isDisabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
+                <Button variant="ghost" size="md" width="100%" _hover={{}} onClick={() => { props.onCancel(); }} sx={{
+                    _active: {
+                        color: 'transparent'
+                    }
+                }}>Cancel</Button>
             </Flex>
         </Flex>
     );
