@@ -8,6 +8,7 @@ import { BsWindowPlus } from 'react-icons/bs'
 
 
 import { Button, Icon, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, createIcon } from '@chakra-ui/react'
+import AppSpacesFooter from './AppSpacesFooter';
 
 type MapType = {
     [id: number]: chrome.tabs.Tab;
@@ -18,13 +19,7 @@ type Props = Readonly<{
     spaceIds: string[]
 }>;
 
-const MDOutlineNewWindow = createIcon({
-    displayName: "New Window",
-    viewBox: "0 -960 960 960",
-    path: (
-        <path fill="currentColor" xmlns="http://www.w3.org/2000/svg" d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h240v80H200v560h560v-240h80v240q0 33-23.5 56.5T760-120H200Zm440-400v-120H520v-80h120v-120h80v120h120v80H720v120h-80Z" ></path>
-    ),
-});
+
 
 function AppSpace(props: Props) {
     // const [tabs, setTabs] = useState<MapType>({});
@@ -71,29 +66,7 @@ function AppSpace(props: Props) {
             <Flex direction={"column"} alignContent={"space-between"} height={"100%"}>
                 <AppSpaceComponent spaceId={"add"} />
                 <Divider />
-                <Flex direction={"column"}>
-                    <HStack justifyContent={"space-between"}>
-                        <div>About</div>
-                        <div>spaces cursor</div>
-                        <Popover size="xs">
-                            <PopoverTrigger>
-                                <IconButton aria-label={''} icon={<AddIcon />} variant="link" size='xl'></IconButton>
-                            </PopoverTrigger>
-                            <PopoverContent as={Stack}>
-                                <PopoverArrow />
-                                <PopoverBody>
-                                    <VStack justify="flex-start" align="stretch" spacing={1}>
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineSpaceDashboard} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Space</Button>
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineCreateNewFolder} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Folder</Button>
-                                        <Divider />
-                                        <Button variant="ghost" leftIcon={<Icon as={MDOutlineNewWindow} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3} >New Window</Button>
-                                        <Button variant="ghost" leftIcon={<Icon as={MdOutlineTab} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>New Tab</Button>
-                                    </VStack>
-                                </PopoverBody>
-                            </PopoverContent>
-                        </Popover>
-                    </HStack>
-                </Flex>
+                <AppSpacesFooter />
             </Flex>
         </Box >
     );
