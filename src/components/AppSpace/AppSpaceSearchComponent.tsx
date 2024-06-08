@@ -1,6 +1,9 @@
-function AppSpaceSearchComponent() {
+import React, { useEffect, useState } from 'react';
 
-    return <div>App Space Search</div>
+import { Input } from '@chakra-ui/react'
+
+function AppSpaceSearchComponent() {
+    return <Input variant="filled" placeholder='Search tabs' />
 }
 
 export default AppSpaceSearchComponent;
