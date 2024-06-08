@@ -1,11 +1,10 @@
 /*global chrome*/
 
 import React, { useEffect, useState } from 'react';
-import AppSpaces from './AppSpaces';
+import Spaces from './Spaces/Spaces';
 import { Box, Container } from '@chakra-ui/layout';
 
 function App() {
-
   // const [appEnabled, setAppEnabled] = useState<boolean>(true);
 
   // useEffect(() => {
@@ -28,7 +27,7 @@ function App() {
   // }
 
   return (
-    <Box height={'95vh'}><AppSpaces spaceIds={["one", "two", "three", "four"]} /></Box>
+    <Box height={'95vh'}><Spaces /></Box>
   );
 }
 

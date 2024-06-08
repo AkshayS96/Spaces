@@ -6,6 +6,16 @@ import { Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger } fr
 import { useState } from "react";
 import { MdOutlineCreateNewFolder, MdOutlineSpaceDashboard, MdOutlineTab } from "react-icons/md";
 
+type PopoverProps = Readonly<{
+    onNewSpace?: () => void,
+    onNewFolder?: () => void,
+    onNewWindow?: () => void,
+    onNewTab?: () => void,
+}>;
+
+
+type SpacesProps = Readonly<{}> & PopoverProps;
+
 const MDOutlineNewWindow = createIcon({
     displayName: "New Window",
     viewBox: "0 -960 960 960",
@@ -22,13 +32,13 @@ function SpacesCursorComponent() {
     return <div>Spaces Cursor</div>
 }
 
-function PopoveChildButtonComponent(props: { iconType: any, label: string }) {
+function PopoveChildButtonComponent(props: { iconType: any, label: string, onClick?: () => void }) {
     return (
-        <Button variant="ghost" leftIcon={<Icon as={props.iconType} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3}>{props.label}</Button>
+        <Button variant="ghost" leftIcon={<Icon as={props.iconType} boxSize={5} />} justifyContent="left" fontSize={14} iconSpacing={3} onClick={props.onClick}>{props.label}</Button>
     );
 }
 
-function PopoveComponent() {
+function PopoverComponent(props: PopoverProps) {
     const [rotation, setRotation] = useState(0);
 
     const onChange = () => {
@@ -40,17 +50,17 @@ function PopoveComponent() {
     return (
         <Popover size="xs" onOpen={onChange} onClose={onChange}>
             <PopoverTrigger>
-                <IconButton aria-label={''} icon={<AddIcon />} variant="link" size='xl' sx={{ transform: `rotate(${rotation}deg)`, transition: 'transform 0.2s ease-in-out' }}></IconButton>
+                <IconButton aria-label={''} icon={<AddIcon />} variant="link" size='xl' sx={{ transform: `rotate(${rotation}deg)`, transition: 'transform 0.1s ease-in-out' }}></IconButton>
             </PopoverTrigger>
             <PopoverContent as={Stack}>
                 <PopoverArrow />
                 <PopoverBody>
                     <VStack justify="flex-start" align="stretch" spacing={1}>
-                        <PopoveChildButtonComponent iconType={MdOutlineSpaceDashboard} label="New Space" />
-                        <PopoveChildButtonComponent iconType={MdOutlineCreateNewFolder} label="New Folder" />
+                        <PopoveChildButtonComponent iconType={MdOutlineSpaceDashboard} label="New Space" onClick={props.onNewSpace} />
+                        <PopoveChildButtonComponent iconType={MdOutlineCreateNewFolder} label="New Folder" onClick={props.onNewFolder} />
                         <Divider />
-                        <PopoveChildButtonComponent iconType={MDOutlineNewWindow} label="New Window" />
-                        <PopoveChildButtonComponent iconType={MdOutlineTab} label="New Tab" />
+                        <PopoveChildButtonComponent iconType={MDOutlineNewWindow} label="New Window" onClick={props.onNewWindow} />
+                        <PopoveChildButtonComponent iconType={MdOutlineTab} label="New Tab" onClick={props.onNewTab} />
                     </VStack>
                 </PopoverBody>
             </PopoverContent>
@@ -58,14 +68,14 @@ function PopoveComponent() {
     );
 }
 
-function AppSpacesFooter() {
+function SpacesFooter(props: SpacesProps) {
     return (<Flex direction={"column"}>
         <HStack justifyContent={"space-between"}>
             <AboutComponent />
             <SpacesCursorComponent />
-            <PopoveComponent />
+            <PopoverComponent onNewSpace={props.onNewSpace} onNewFolder={props.onNewFolder} onNewWindow={props.onNewWindow} onNewTab={props.onNewTab} />
         </HStack>
     </Flex>);
 }
 
-export default AppSpacesFooter;
+export default SpacesFooter;

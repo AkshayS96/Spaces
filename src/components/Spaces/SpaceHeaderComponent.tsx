@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
 
-function AppSpaceHeaderComponent() {
+function SpaceHeaderComponent() {
     return <div>App Space Header</div>
 }
 
-export default AppSpaceHeaderComponent;
+export default SpaceHeaderComponent;

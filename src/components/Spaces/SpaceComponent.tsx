@@ -1,27 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import AppSpaceComponent from './AppSpace/AppSpaceComponent';
-import { Box, Divider, Flex, HStack, Stack, VStack, Text } from '@chakra-ui/layout';
-import { AddIcon } from '@chakra-ui/icons'
-import { MdOutlineSpaceDashboard, MdOutlineFolderOpen, MdOutlineTab, MdCreateNewFolder, MdOutlineCreateNewFolder } from "react-icons/md";
-import { BsWindowPlus } from 'react-icons/bs'
 
-
-
-import { Button, Icon, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverHeader, PopoverTrigger, createIcon } from '@chakra-ui/react'
-import AppSpacesFooter from './AppSpacesFooter';
-
-type MapType = {
-    [id: number]: chrome.tabs.Tab;
-};
-
+import { Box, Divider, Drawer, Flex, Grid, Spacer, StackDivider, VStack } from '@chakra-ui/react'
+import SpaceHeaderComponent from './SpaceHeaderComponent';
+import SpaceSearchComponent from './SpaceSearchComponent';
+import SpaceContentComponent from './SpaceContentComponent';
 
 type Props = Readonly<{
-    spaceIds: string[]
+    spaceId: string
 }>;
 
-
-
-function AppSpace(props: Props) {
+function AppSpaceComponent(props: Props) {
     // const [tabs, setTabs] = useState<MapType>({});
 
     // useEffect(() => {
@@ -62,23 +50,14 @@ function AppSpace(props: Props) {
     // }, []);
 
     return (
-        <Box height="100%" padding={5}>
-            <Flex direction={"column"} alignContent={"space-between"} height={"100%"}>
-                <AppSpaceComponent spaceId={"add"} />
-                <Divider />
-                <AppSpacesFooter />
-            </Flex>
-        </Box >
+        <Flex flexDirection='column' height="100%" justifyContent={"space-between"}>
+            <VStack alignItems="start">
+                <SpaceSearchComponent />
+                <SpaceHeaderComponent />
+            </VStack>
+            <SpaceContentComponent />
+        </Flex>
     );
-
-    // return <div className="AppSpace">
-    //     {Object.values(tabs).sort((a, b) => {
-    //         return a.index - b.index;
-    //     }).map((tab: chrome.tabs.Tab) => {
-    //         return <div>{tab.active ? <b>{tab.title}</b> : tab.title}</div>
-    //     })}
-    // </div>
 }
 
-
-export default AppSpace;
+export default AppSpaceComponent;
