@@ -6,10 +6,13 @@ import { ChakraProvider } from '@chakra-ui/react';
 import { extendTheme } from "@chakra-ui/react";
 import { popoverTheme } from './theme/Popover';
 
+import { register } from 'swiper/element/bundle'
 
 export const theme = extendTheme({
   components: { Popover: popoverTheme }
 });
+
+register();
 
 const extensionRoot = document.createElement("div")
 extensionRoot.id = "folders-chrome-extension"

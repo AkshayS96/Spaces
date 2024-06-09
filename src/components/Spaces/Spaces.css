@@ -1,0 +1,23 @@
+.swiper-bullet-pagination-custom {
+    word-spacing: 2px;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+kbd {
+    background-color: #eee;
+    border-radius: 3px;
+    border: 1px solid #b4b4b4;
+    box-shadow:
+        0 1px 1px rgba(0, 0, 0, 0.2),
+        0 2px 0 0 rgba(255, 255, 255, 0.7) inset;
+    color: #333;
+    display: inline;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 4px;
+    white-space: nowrap;
+}
