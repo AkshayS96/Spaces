@@ -26,7 +26,7 @@ function SpaceHeaderComponent(props: Props) {
         <Typography.Title level={3} style={{ margin: 0 }}>
             {Utils.capitalize(props.space.name)}
         </Typography.Title>
-        <Dropdown menu={{ items: MENU_ITEMS }}>
+        <Dropdown menu={{ items: MENU_ITEMS }} arrow>
             <Button icon={<EllipsisOutlined size={20} />} />
         </Dropdown>
     </Flex>

@@ -5,6 +5,7 @@ import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './SpaceContentComponent';
 import { SpaceData } from './Types';
 import { Flex, Space } from 'antd';
+import SpacesFooterComponent from './SpaceFooterComponent';
 
 type Props = Readonly<{
     space: SpaceData
@@ -51,11 +52,12 @@ function SpaceComponent(props: Props) {
     // }, []);
 
     return (
-        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+        <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={20}>
             <SpaceSearchComponent />
             <SpaceHeaderComponent space={props.space} />
             <SpaceContentComponent space={props.space} />
-        </Space>
+            <SpacesFooterComponent onNewFolder={() => console.log("new folder")} onNewSpace={() => console.log("new space")} onNewTab={() => console.log("new tab")} />
+        </Flex >
     );
 }
 

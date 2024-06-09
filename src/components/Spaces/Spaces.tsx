@@ -83,7 +83,7 @@ function Spaces() {
 
     // We have spaces data so populate that
     return (
-        <Flex vertical justify='center' style={{ height: '95vh' }}>
+        <Flex vertical justify='center' style={{ height: '95vh', padding: '10px' }}>
             {isCreateSpace ?
                 (
                     <NewSpaceComponent onCreateSpace={onCreateSpace} onCancel={onCreateSpaceCancel} />
