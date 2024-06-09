@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 
-import { Box, Divider, Drawer, Flex, Grid, Spacer, StackDivider, VStack } from '@chakra-ui/react'
+import { Flex, VStack } from '@chakra-ui/react'
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './SpaceContentComponent';
+import { SpacesData } from './Types';
 
 type Props = Readonly<{
-    spaceId: string
+    space: SpacesData
 }>;
 
-function AppSpaceComponent(props: Props) {
+function SpaceComponent(props: Props) {
     // const [tabs, setTabs] = useState<MapType>({});
 
     // useEffect(() => {
@@ -60,4 +61,4 @@ function AppSpaceComponent(props: Props) {
     );
 }
 
-export default AppSpaceComponent;
+export default SpaceComponent;

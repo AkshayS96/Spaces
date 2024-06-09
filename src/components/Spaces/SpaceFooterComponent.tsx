@@ -18,6 +18,7 @@ type PopoverProps = Readonly<{
 
 type SpacesProps = Readonly<{
     spaces: SpacesData[],
+    navigationElement: React.ReactNode
 }> & PopoverProps;
 
 const MDOutlineNewWindow = createIcon({
@@ -32,24 +33,6 @@ function AboutComponent() {
     return <div>About</div>
 }
 
-function SpacesCursorComponent(props: { spaces: SpacesData[] }) {
-    const [selectedId, setSelectedId] = useState<number>(0);
-
-    return <HStack maxWidth="60%" justifyContent="center" overflow="scroll" sx={{
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-    }}>
-        {props.spaces.sort((a, b) => a.id - b.id).map((space, index) => {
-            return (
-                <Tooltip borderRadius="10px" label={index < 9 ? (<HStack><Box>{space.name}</Box> <Kbd color="black">^+shift+{index}</Kbd></HStack>) : space.name}>
-                    <IconButton aria-label="" size="sm" icon={<MdCircle size={selectedId === space.id ? 15 : 10} color={selectedId === space.id ? "black" : "gray"} />} onClick={() => {
-                        setSelectedId(space.id);
-                    }} variant="ghost" />
-                </Tooltip>
-            );
-        })};
-    </HStack>
-}
 
 function PopoveChildButtonComponent(props: { iconType: any, label: string, onClick?: () => void }) {
     return (
@@ -87,14 +70,14 @@ function PopoverComponent(props: PopoverProps) {
     );
 }
 
-function SpacesFooter(props: SpacesProps) {
+function SpacesFooterComponent(props: SpacesProps) {
     return (<Flex direction={"column"}>
         <HStack justifyContent={"space-between"}>
             <AboutComponent />
-            <SpacesCursorComponent spaces={props.spaces} />
+            {props.navigationElement}
             <PopoverComponent onNewSpace={props.onNewSpace} onNewFolder={props.onNewFolder} onNewWindow={props.onNewWindow} onNewTab={props.onNewTab} />
         </HStack>
     </Flex>);
 }
 
-export default SpacesFooter;
+export default SpacesFooterComponent;

@@ -1,8 +1,8 @@
 /* global chrome */
 
 import { useEffect, useState } from 'react';
-import AppSpaceComponent from './SpaceComponent';
-import { Box } from '@chakra-ui/layout';
+import SpaceComponent from './SpaceComponent';
+import { Box, Flex } from '@chakra-ui/layout';
 import NewSpaceComponent from './NewSpaceComponent';
 import { SpacesData } from './Types';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -97,6 +97,7 @@ function Spaces() {
                             onSwiper={(swiper: any) => console.log(swiper)}
                             modules={[Pagination]}
                             pagination={{
+                                el: '.swiper-pagination',
                                 dynamicBullets: true,
                                 clickable: true,
                                 bulletElement: 'div',
@@ -113,13 +114,13 @@ function Spaces() {
                             {spaces.map((space, index) => {
                                 return (
                                     <SwiperSlide style={{ "height": "100%" }} key={space.id}>
-                                        <AppSpaceComponent spaceId={"add"} />
+                                        <SpaceComponent space={space} />
                                     </SwiperSlide>
                                 );
                             })}
+                            <div className="swiper-pagination"></div>
                         </Swiper>
                     </>
-                    // <AppSpacesFooter spaces={spaces} onNewSpace={() => { setIsCreateSpace(true); }} onNewFolder={() => { }} onNewTab={() => { }} onNewWindow={() => { }} />
                 )
             }
         </Box >
