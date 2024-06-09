@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Spaces from './Spaces/Spaces';
-import { Box, Container } from '@chakra-ui/layout';
+import { Flex } from 'antd';
 
 function App() {
   // const [appEnabled, setAppEnabled] = useState<boolean>(true);
@@ -26,9 +26,7 @@ function App() {
   //   window.close();
   // }
 
-  return (
-    <Box height={'100vh'}><Spaces /></Box>
-  );
+  return <Spaces />;
 }
 
 export default App;

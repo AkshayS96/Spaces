@@ -1,29 +1,35 @@
-import React, { useEffect, useState } from 'react';
 import { SpaceData } from './Types';
-import { Flex, HStack, Heading, Text } from '@chakra-ui/layout';
-import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu';
-import { IconButton } from '@chakra-ui/button';
-import { HamburgerIcon } from '@chakra-ui/icons';
+import { Button, Dropdown, Flex, Space, Typography } from 'antd';
+import { EllipsisOutlined } from '@ant-design/icons';
 import { Utils } from '../utils/Utils';
-import { MdOutlineMoreHoriz } from 'react-icons/md';
+
 
 type Props = Readonly<{
     space: SpaceData
 }>;
 
+const MENU_ITEMS = [{
+    label: 'Rename Space...',
+    key: '0',
+},
+{
+    label: 'New Folder',
+    key: '1',
+}, {
+    label: 'Delete Space',
+    key: '2',
+},
+];
+
 function SpaceHeaderComponent(props: Props) {
-    return <HStack direction="row" justifyContent="space-between" padding={2}>
-        <Heading as="h3" size="md">{Utils.capitalize(props.space.name)}</Heading>
-        <Menu>
-            <MenuButton as={IconButton} aria-label="" size="sm" icon={<MdOutlineMoreHoriz size={20} />} variant="ghost">
-            </MenuButton>
-            <MenuList>
-                <MenuItem>Rename Space...</MenuItem>
-                <MenuItem>New Folder</MenuItem>
-                <MenuItem>Delete Space</MenuItem>
-            </MenuList>
-        </Menu>
-    </HStack>
+    return <Flex justify="space-between">
+        <Typography.Title level={3} style={{ margin: 0 }}>
+            {Utils.capitalize(props.space.name)}
+        </Typography.Title>
+        <Dropdown menu={{ items: MENU_ITEMS }}>
+            <Button icon={<EllipsisOutlined size={20} />} />
+        </Dropdown>
+    </Flex>
 }
 
 export default SpaceHeaderComponent;

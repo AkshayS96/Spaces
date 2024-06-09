@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import SpaceComponent from './SpaceComponent';
-import { Box, Flex } from '@chakra-ui/layout';
 import NewSpaceComponent from './NewSpaceComponent';
 import { SpaceData } from './Types';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -15,6 +14,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
+import { Flex, Space } from 'antd';
 
 
 function Spaces() {
@@ -83,7 +83,7 @@ function Spaces() {
 
     // We have spaces data so populate that
     return (
-        <Box height="100%" padding={5}>
+        <Flex vertical justify='center' style={{ height: '95vh' }}>
             {isCreateSpace ?
                 (
                     <NewSpaceComponent onCreateSpace={onCreateSpace} onCancel={onCreateSpaceCancel} />
@@ -121,7 +121,7 @@ function Spaces() {
                     </>
                 )
             }
-        </Box >
+        </Flex >
     );
 }
 

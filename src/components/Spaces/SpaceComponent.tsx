@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import { Flex, VStack } from '@chakra-ui/react'
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './SpaceContentComponent';
 import { SpaceData } from './Types';
+import { Flex, Space } from 'antd';
 
 type Props = Readonly<{
     space: SpaceData
@@ -51,11 +51,11 @@ function SpaceComponent(props: Props) {
     // }, []);
 
     return (
-        <Flex flexDirection='column' height="100%" justifyContent={"space-between"} gap={5}>
+        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
             <SpaceSearchComponent />
             <SpaceHeaderComponent space={props.space} />
-            <SpaceContentComponent />
-        </Flex>
+            <SpaceContentComponent space={props.space} />
+        </Space>
     );
 }
 
