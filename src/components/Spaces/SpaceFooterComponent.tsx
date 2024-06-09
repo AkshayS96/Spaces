@@ -31,7 +31,7 @@ const NewTabIcon = (props: Partial<CustomIconComponentProps>) => {
 // }
 
 function SpacesFooterComponent(props: SpacesProps) {
-    return <FloatButton.Group trigger="click" style={{ right: 24 }} icon={<PlusOutlined />} >
+    return <FloatButton.Group trigger="click" icon={<PlusOutlined />} >
         <FloatButton icon={<NewSpaceIcon />} tooltip={<div>New Space</div>} onClick={props.onNewSpace} />
         <FloatButton icon={<FolderAddOutlined />} tooltip={<div>New Folder</div>} onClick={props.onNewFolder} />
         <FloatButton icon={<NewTabIcon />} tooltip={<div>New Tab</div>} onClick={props.onNewTab} />
