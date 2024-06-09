@@ -5,7 +5,7 @@ import { Box, Divider, Flex, HStack, Kbd, Stack, VStack } from "@chakra-ui/layou
 import { Popover, PopoverArrow, PopoverBody, PopoverContent, PopoverTrigger } from "@chakra-ui/popover";
 import { useState } from "react";
 import { MdArrowBack, MdArrowForward, MdCircle, MdOutlineCreateNewFolder, MdOutlineSpaceDashboard, MdOutlineTab } from "react-icons/md";
-import { SpacesData } from "./Types";
+import { SpaceData } from "./Types";
 import { Tooltip } from "@chakra-ui/tooltip";
 
 type PopoverProps = Readonly<{
@@ -17,7 +17,7 @@ type PopoverProps = Readonly<{
 
 
 type SpacesProps = Readonly<{
-    spaces: SpacesData[],
+    spaces: SpaceData[],
     navigationElement: React.ReactNode
 }> & PopoverProps;
 

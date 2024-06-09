@@ -1,4 +1,4 @@
-export type SpacesData = {
+export type SpaceData = {
     id: number,
     name: string,
     isDefault: boolean,

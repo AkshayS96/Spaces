@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import SpaceComponent from './SpaceComponent';
 import { Box, Flex } from '@chakra-ui/layout';
 import NewSpaceComponent from './NewSpaceComponent';
-import { SpacesData } from './Types';
+import { SpaceData } from './Types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import tippy from 'tippy.js'
 
@@ -18,7 +18,7 @@ import 'tippy.js/dist/tippy.css'; // optional for styling
 
 
 function Spaces() {
-    const [spaces, setSpaces] = useState<SpacesData[]>([]);
+    const [spaces, setSpaces] = useState<SpaceData[]>([]);
     const [currentSpace, setCurrentSpace] = useState<number>(0);
     const [isCreateSpace, setIsCreateSpace] = useState(false);
 
@@ -40,7 +40,7 @@ function Spaces() {
             // setSpaces(spacesLocal);
 
             const spacesLocal = [{ id: 0, name: "test", folders: [], isDefault: false }, { id: 1, name: "test1", folders: [], isDefault: false }, { id: 2, name: "test2", folders: [], isDefault: false }, { id: 3, name: "test3", folders: [], isDefault: false }]
-            setSpaces(spacesLocal as SpacesData[]);
+            setSpaces(spacesLocal as SpaceData[]);
         }
         setupSpaces();
     }, []);
@@ -97,7 +97,6 @@ function Spaces() {
                             onSwiper={(swiper: any) => console.log(swiper)}
                             modules={[Pagination]}
                             pagination={{
-                                el: '.swiper-pagination',
                                 dynamicBullets: true,
                                 clickable: true,
                                 bulletElement: 'div',
@@ -111,14 +110,13 @@ function Spaces() {
                                 enabled: true
                             }}
                         >
-                            {spaces.map((space, index) => {
+                            {spaces.map((space, _index) => {
                                 return (
                                     <SwiperSlide style={{ "height": "100%" }} key={space.id}>
                                         <SpaceComponent space={space} />
                                     </SwiperSlide>
                                 );
                             })}
-                            <div className="swiper-pagination"></div>
                         </Swiper>
                     </>
                 )

@@ -4,10 +4,10 @@ import { Flex, VStack } from '@chakra-ui/react'
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './SpaceContentComponent';
-import { SpacesData } from './Types';
+import { SpaceData } from './Types';
 
 type Props = Readonly<{
-    space: SpacesData
+    space: SpaceData
 }>;
 
 function SpaceComponent(props: Props) {
@@ -51,11 +51,9 @@ function SpaceComponent(props: Props) {
     // }, []);
 
     return (
-        <Flex flexDirection='column' height="100%" justifyContent={"space-between"}>
-            <VStack alignItems="start">
-                <SpaceSearchComponent />
-                <SpaceHeaderComponent />
-            </VStack>
+        <Flex flexDirection='column' height="100%" justifyContent={"space-between"} gap={5}>
+            <SpaceSearchComponent />
+            <SpaceHeaderComponent space={props.space} />
             <SpaceContentComponent />
         </Flex>
     );
