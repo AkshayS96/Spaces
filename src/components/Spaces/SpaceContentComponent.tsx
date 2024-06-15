@@ -61,11 +61,11 @@ function SpaceContentComponent(props: Props) {
 
     const getTitle = useCallback((node: TreeDataNode): ReactNode => {
         if (node.isLeaf) {
-            return <Typography style={{ padding: 5, }}>{node.title?.toString()}</Typography>
+            return <Typography style={{ padding: 8, }} className='space-content-component-tree-node-title'>{node.title?.toString()}</Typography>
         }
         const isMultilevelDirectory = node?.children?.some((child) => child.children?.length);
         const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
-        return (<Flex gap={5} align='center' style={{ padding: 5 }}>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</Flex>);
+        return (<Flex gap={5} align='center' style={{ padding: 8 }} className='space-content-component-tree-node-title'>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</Flex>);
     }, [expandState])
 
     return <Flex vertical style={{ height: '100%' }}>
