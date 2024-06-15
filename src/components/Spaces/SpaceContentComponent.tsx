@@ -31,9 +31,9 @@ const treeData: TreeDataNode[] = [
             {
                 title: "Parent 1-1",
                 key: "0-1-11",
-                children: [
-                    { title: 'leaf 1-0', key: '0-1-11-0', isLeaf: true },
-                    { title: 'leaf 1-1', key: '0-1-11-1', isLeaf: true }],
+                // children: [
+                //     { title: 'leaf 1-0', key: '0-1-11-0', isLeaf: true },
+                //     { title: 'leaf 1-1', key: '0-1-11-1', isLeaf: true }],
             }
         ],
     },
@@ -46,9 +46,14 @@ type Props = Readonly<{
 
 function SpaceContentComponent(props: Props) {
     const [expandState, setExpandState] = useState<{ [key: string]: boolean }>({});
+    const [selectedKeys, setSelectedKeys] = useState<{ [key: string]: boolean }>({});
 
     const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
-        console.log('Trigger Select', keys, info);
+        if (info.nativeEvent.metaKey) {
+            setSelectedKeys({ ...selectedKeys, [info.node.key.toString()]: true });
+        } else {
+            setSelectedKeys({});
+        }
     };
 
     const onExpand: DirectoryTreeProps['onExpand'] = (keys, info) => {
@@ -61,15 +66,18 @@ function SpaceContentComponent(props: Props) {
 
     const getTitle = useCallback((node: TreeDataNode): ReactNode => {
         if (node.isLeaf) {
-            return <Typography style={{ padding: 8, }} className='space-content-component-tree-node-title'>{node.title?.toString()}</Typography>
+            return <Typography style={{ padding: 8, backgroundColor: (selectedKeys[node.key.toString()] ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'>{node.title?.toString()}</Typography>
         }
         const isMultilevelDirectory = node?.children?.some((child) => child.children?.length);
         const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
-        return (<Flex gap={5} align='center' style={{ padding: 8 }} className='space-content-component-tree-node-title'>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</Flex>);
-    }, [expandState])
+        return (<Flex gap={5} align='center' style={{ padding: 8, backgroundColor: (selectedKeys[node.key.toString()] ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title' > {folderIcon}{<Text strong>{node.title?.toString()}</Text>}</Flex >);
+    }, [expandState, selectedKeys])
 
     return <Flex vertical style={{ height: '100%' }}>
-        <DirectoryTree multiple onSelect={onSelect}
+        <DirectoryTree
+            expandAction="click"
+            multiple
+            onSelect={onSelect}
             onExpand={onExpand}
             treeData={treeData}
             showIcon={false}
