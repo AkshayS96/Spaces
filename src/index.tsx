@@ -21,9 +21,9 @@ root.render(
       components: {
         Tree: {
           directoryNodeSelectedBg: '',
-          motionDurationSlow: '0.05s',
-          motionDurationMid: '0.05s',
-          motionDurationFast: '0.05s',
+          motionDurationSlow: '0.2s',
+          motionDurationMid: '0.2s',
+          motionDurationFast: '0.2s',
         },
       },
     }}>
