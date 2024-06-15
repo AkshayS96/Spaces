@@ -1,16 +1,17 @@
 
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
 import { SpaceData } from './Types';
 import type { GetProps, TreeDataNode } from 'antd';
-import { Flex, Tree } from 'antd';
-import { AntTreeNodeProps } from 'antd/es/tree';
-import { FolderOpenOutlined, FolderOutlined } from '@ant-design/icons';
-import { FolderClose, FolderOpen } from '../common/Icons';
+import { Flex, Tree, Typography } from 'antd';
+import { FolderClose, FolderFullClose, FolderOpen } from '../common/Icons';
+
+import "./SpaceContentComponent.css"
 
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
 
-const { DirectoryTree } = Tree
+const { DirectoryTree } = Tree;
+const { Text } = Typography;
 
 const treeData: TreeDataNode[] = [
     {
@@ -27,6 +28,13 @@ const treeData: TreeDataNode[] = [
         children: [
             { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
             { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
+            {
+                title: "Parent 1-1",
+                key: "0-1-11",
+                children: [
+                    { title: 'leaf 1-0', key: '0-1-11-0', isLeaf: true },
+                    { title: 'leaf 1-1', key: '0-1-11-1', isLeaf: true }],
+            }
         ],
     },
 ];
@@ -37,25 +45,37 @@ type Props = Readonly<{
 }>;
 
 function SpaceContentComponent(props: Props) {
+    const [expandState, setExpandState] = useState<{ [key: string]: boolean }>({});
+
     const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
         console.log('Trigger Select', keys, info);
     };
 
     const onExpand: DirectoryTreeProps['onExpand'] = (keys, info) => {
-        console.log('Trigger Expand', keys, info);
+        if (info.expanded) {
+            setExpandState({ ...expandState, [info.node.key.toString()]: true });
+        } else {
+            setExpandState({ ...expandState, [info.node.key.toString()]: false });
+        }
     };
 
+    const getTitle = useCallback((node: TreeDataNode): ReactNode => {
+        if (node.isLeaf) {
+            return <Typography style={{ padding: 5, }}>{node.title?.toString()}</Typography>
+        }
+        const isMultilevelDirectory = node?.children?.some((child) => child.children?.length);
+        const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
+        return (<Flex gap={5} align='center' style={{ padding: 5 }}>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</Flex>);
+    }, [expandState])
+
     return <Flex vertical style={{ height: '100%' }}>
-        <DirectoryTree multiple defaultExpandAll onSelect={onSelect}
+        <DirectoryTree multiple onSelect={onSelect}
             onExpand={onExpand}
             treeData={treeData}
             showIcon={false}
             onRightClick={() => { console.log("right click") }}
-            switcherIcon={(props: AntTreeNodeProps) => {
-                return props.expanded ? <FolderOpen height='2em' width='2em' /> : <FolderClose height='2em' width='2em' style={{
-                    transform: 'rotate(90deg)',
-                }} />
-            }}
+            switcherIcon={null}
+            titleRender={getTitle}
         />
     </Flex>
 }

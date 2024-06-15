@@ -15,7 +15,18 @@ document.body.appendChild(extensionRoot);
 const root = ReactDOM.createRoot(extensionRoot);
 root.render(
   <React.StrictMode>
-    <ConfigProvider theme={{ token: { colorPrimary: '#00b96b' } }}>
+    <ConfigProvider theme={{
+      token: {
+      },
+      components: {
+        Tree: {
+          directoryNodeSelectedBg: '',
+          motionDurationSlow: '0.05s',
+          motionDurationMid: '0.05s',
+          motionDurationFast: '0.05s',
+        },
+      },
+    }}>
       <App />
     </ConfigProvider>
   </React.StrictMode >
