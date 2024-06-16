@@ -1,13 +1,15 @@
 
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
-import { SpaceData } from './Types';
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChildrenType, FolderData, LeafData, SpaceData } from './Types';
 import type { GetProps, TreeDataNode } from 'antd';
-import { Dropdown, Flex, Popover, Tree, Typography } from 'antd';
+import { Dropdown, Flex, notification, Tree, Typography } from 'antd';
 import { FolderClose, FolderFullClose, FolderOpen } from '../common/Icons';
+import type { NotificationArgsProps } from 'antd';
 
 import "./SpaceContentComponent.css"
 import { BasicDataNode, EventDataNode } from 'antd/es/tree';
 import { ItemType } from 'antd/es/menu/interface';
+import { NotificationPlacements } from 'antd/es/notification/interface';
 
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
@@ -15,31 +17,33 @@ type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 const { DirectoryTree } = Tree;
 const { Text } = Typography;
 
-const treeData: TreeDataNode[] = [
-    {
-        title: 'parent 0',
-        key: '0-0',
-        children: [
-            { title: 'leaf 0-0', key: '0-0-0', isLeaf: true },
-            { title: 'leaf 0-1', key: '0-0-1', isLeaf: true },
-        ],
-    },
-    {
-        title: 'parent 1',
-        key: '0-1',
-        children: [
-            { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
-            { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
-            {
-                title: "Parent 1-1",
-                key: "0-1-11",
-                // children: [
-                //     { title: 'leaf 1-0', key: '0-1-11-0', isLeaf: true },
-                //     { title: 'leaf 1-1', key: '0-1-11-1', isLeaf: true }],
-            }
-        ],
-    },
-];
+type NotificationPlacement = NotificationArgsProps['placement'];
+
+// const TEMP_TREE_DATA: TreeDataNode[] = [
+//     {
+//         title: 'parent 0',
+//         key: '0-0',
+//         children: [
+//             { title: 'leaf 0-0', key: '0-0-0', isLeaf: true },
+//             { title: 'leaf 0-1', key: '0-0-1', isLeaf: true },
+//         ],
+//     },
+//     {
+//         title: 'parent 1',
+//         key: '0-1',
+//         children: [
+//             { title: 'leaf 1-0', key: '0-1-0', isLeaf: true },
+//             { title: 'leaf 1-1', key: '0-1-1', isLeaf: true },
+//             {
+//                 title: "Parent 1-1",
+//                 key: "0-1-11",
+//                 // children: [
+//                 //     { title: 'leaf 1-0', key: '0-1-11-0', isLeaf: true },
+//                 //     { title: 'leaf 1-1', key: '0-1-11-1', isLeaf: true }],
+//             }
+//         ],
+//     },
+// ];
 
 
 type Props = Readonly<{
@@ -51,7 +55,39 @@ function SpaceContentComponent(props: Props) {
     const [selectedNodes, setSelectedNodes] = useState<{ [key: string]: EventDataNode<BasicDataNode | TreeDataNode> }>({});
     const [contextMenuNode, setContextMenuNode] = useState<TreeDataNode>();
 
-    console.log(selectedNodes);
+    const [notificationApi, contextHolder] = notification.useNotification();
+
+
+    const parsedTreeData = useMemo((): TreeDataNode[] => {
+
+        const recurseChild = (child: FolderData | LeafData): TreeDataNode => {
+            if (child.dataType === ChildrenType.Leaf) {
+                const leafData = child as LeafData;
+                return {
+                    title: leafData.name,
+                    key: leafData.key,
+                    isLeaf: true,
+                };
+            }
+
+            const folderData = child as FolderData;
+
+            const folderTreeNodeData: TreeDataNode = {
+                title: folderData.name,
+                key: folderData.key,
+                children: []
+            }
+
+            for (const child of folderData.children) {
+                const data = recurseChild(child);
+                folderTreeNodeData.children?.push(recurseChild(child));
+            }
+
+            return folderTreeNodeData;
+        }
+
+        return props.space.children.map((child) => recurseChild(child));
+    }, [props.space]);
 
     const onTreeNodeSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
         if (info.nativeEvent.metaKey) {
@@ -76,11 +112,20 @@ function SpaceContentComponent(props: Props) {
     };
 
     const onCopyLinks = (items: string[]) => {
-        if (!items) {
-            return
+        items = (items ?? []).filter((value) => value.length > 0)
+        if (items.length > 0) {
+            // Change this to copy urls instead of item keys
+            navigator.clipboard.writeText(items.join("\n"));
+            notificationApi.success({
+                message: `Copied ${items.length} items`,
+                placement: "top"
+            });
         }
-        console.log(items);
     };
+
+    const onRename = (key: React.Key) => {
+        console.log(key);
+    }
 
     const getTreeNodeDropdownMenuItems = useCallback((): ItemType[] => {
         const menuItems: ItemType[] = [];
@@ -98,11 +143,9 @@ function SpaceContentComponent(props: Props) {
                 key: "context_menu_single_leaf_copy_link",
                 onClick: () => { onCopyLinks([contextMenuNode?.key.toString() ?? '']) }
             }, {
-                label: "Share",
-                key: "context_menu_single_leaf_share"
-            }, {
                 label: "Rename...",
-                key: "context_menu_single_leaf_rename"
+                key: "context_menu_single_leaf_rename",
+                onClick: () => { onRename(contextMenuNode?.key.toString() ?? '') }
             }, {
                 label: "Delete",
                 key: "context_menu_single_leaf_delete"
@@ -116,7 +159,8 @@ function SpaceContentComponent(props: Props) {
                 key: "context_menu_single_folder_new_nested_folder"
             }, {
                 label: "Rename...",
-                key: "context_menu_single_folder_rename"
+                key: "context_menu_single_folder_rename",
+                onClick: () => { onRename(contextMenuNode?.key.toString() ?? '') }
             },
             {
                 label: "Duplicate",
@@ -153,43 +197,46 @@ function SpaceContentComponent(props: Props) {
     }, [selectedNodes, contextMenuNode]);
 
     return (
-        <Dropdown placement='bottom' trigger={["contextMenu"]} arrow={true} menu={{
-            items: getTreeNodeDropdownMenuItems(),
-        }}>
-            <Flex vertical style={{ height: '100%' }}>
-                <DirectoryTree
-                    expandAction="click"
-                    multiple
-                    onSelect={onTreeNodeSelect}
-                    onExpand={onTreeNodeExpand}
-                    treeData={treeData}
-                    showIcon={false}
-                    // onRightClick={(info) => { info.event.stopPropagation(); setPopoverParent(info.node.key.toString()); }}
-                    switcherIcon={null}
-                    titleRender={(node: TreeDataNode): ReactNode => {
-                        let titleNode: ReactNode = null;
-                        if (node.isLeaf) {
-                            titleNode = <Typography>{node.title?.toString()}</Typography>
-                        } else {
-                            const isMultilevelDirectory = node?.children?.some((child) => !child.isLeaf);
-                            const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
-                            titleNode = <>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</>
-                        }
-                        return (
-                            <Flex
-                                onContextMenu={(_) => {
-                                    setContextMenuNode(node)
-                                }}
-                                gap={5}
-                                align='center'
-                                style={{ padding: 8, backgroundColor: (selectedNodes[node.key.toString()] ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'>
-                                {titleNode}
-                            </Flex >
-                        );
-                    }}
-                />
-            </Flex >
-        </Dropdown>
+        <>
+            {contextHolder}
+            <Dropdown placement='bottom' trigger={["contextMenu"]} arrow={true} menu={{
+                items: getTreeNodeDropdownMenuItems(),
+            }}>
+                <Flex vertical style={{ height: '100%' }}>
+                    <DirectoryTree
+                        expandAction="click"
+                        multiple
+                        onSelect={onTreeNodeSelect}
+                        onExpand={onTreeNodeExpand}
+                        treeData={parsedTreeData}
+                        showIcon={false}
+                        // onRightClick={(info) => { info.event.stopPropagation(); setPopoverParent(info.node.key.toString()); }}
+                        switcherIcon={null}
+                        titleRender={(node: TreeDataNode): ReactNode => {
+                            let titleNode: ReactNode = null;
+                            if (node.isLeaf) {
+                                titleNode = <Typography>{node.title?.toString()}</Typography>
+                            } else {
+                                const isMultilevelDirectory = node?.children?.some((child) => !child.isLeaf);
+                                const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
+                                titleNode = <>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</>
+                            }
+                            return (
+                                <Flex
+                                    onContextMenu={(_) => {
+                                        setContextMenuNode(node)
+                                    }}
+                                    gap={5}
+                                    align='center'
+                                    style={{ padding: 8, backgroundColor: (selectedNodes[node.key.toString()] ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'>
+                                    {titleNode}
+                                </Flex >
+                            );
+                        }}
+                    />
+                </Flex >
+            </Dropdown>
+        </>
     );
 }
 

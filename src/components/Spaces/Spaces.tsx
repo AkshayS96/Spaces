@@ -1,9 +1,9 @@
 /* global chrome */
 
-import { useEffect, useState } from 'react';
+import { Children, useEffect, useState } from 'react';
 import SpaceComponent from './SpaceComponent';
 import NewSpaceComponent from './NewSpaceComponent';
-import { SpaceData } from './Types';
+import { ChildrenType, SpaceData } from './Types';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import tippy from 'tippy.js'
 
@@ -20,7 +20,7 @@ import { Flex, Space } from 'antd';
 function Spaces() {
     const [spaces, setSpaces] = useState<SpaceData[]>([]);
     const [currentSpace, setCurrentSpace] = useState<number>(0);
-    const [isCreateSpace, setIsCreateSpace] = useState(false);
+    const [isCreateSpace, setIsCreateSpace] = useState(true);
 
 
     useEffect(() => {
@@ -31,16 +31,16 @@ function Spaces() {
             // if (result && result.spaces) {
             //     spacesLocal = result.spaces;
             // }
-            // spacesLocal.push({
-            //     id: 0,
-            //     isDefault: true,
-            //     name: "Default",
-            //     folders: [],
-            // });
-            // setSpaces(spacesLocal);
 
-            const spacesLocal = [{ id: 0, name: "test", folders: [], isDefault: false }, { id: 1, name: "test1", folders: [], isDefault: false }, { id: 2, name: "test2", folders: [], isDefault: false }, { id: 3, name: "test3", folders: [], isDefault: false }]
-            setSpaces(spacesLocal as SpaceData[]);
+            const spacesLocal: SpaceData[] = []
+            spacesLocal.push({
+                id: 0,
+                isDefault: true,
+                name: "Untitled",
+                children: [],
+            });
+
+            setSpaces(spacesLocal);
         }
         setupSpaces();
     }, []);
@@ -70,15 +70,28 @@ function Spaces() {
         setSpaces([...spaces, {
             id: spaces.length,
             name,
-            folders: [],
+            children: [],
             isDefault: false
-        } as any]);
+        }]);
         setIsCreateSpace(false);
         setCurrentSpace(spaces.length);
     }
 
     const onCreateSpaceCancel = () => {
         setIsCreateSpace(false);
+    }
+
+    const onSpaceNameChange = (spaceId: number, newName: string) => {
+        const newSpaces = spaces.map((value: SpaceData, _) => {
+            if (value.id === spaceId) {
+                return {
+                    ...value,
+                    name: newName
+                }
+            }
+            return value;
+        });
+        setSpaces(newSpaces);
     }
 
     // We have spaces data so populate that
@@ -113,7 +126,7 @@ function Spaces() {
                             {spaces.map((space, _index) => {
                                 return (
                                     <SwiperSlide style={{ "height": "100%" }} key={space.id}>
-                                        <SpaceComponent space={space} />
+                                        <SpaceComponent space={space} onNewSpace={() => setIsCreateSpace(true)} onSpaceNameChange={onSpaceNameChange} />
                                     </SwiperSlide>
                                 );
                             })}

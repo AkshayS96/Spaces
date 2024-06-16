@@ -8,7 +8,9 @@ import { Flex, Space } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
 
 type Props = Readonly<{
-    space: SpaceData
+    space: SpaceData,
+    onNewSpace: () => void
+    onSpaceNameChange: (spaceId: number, newName: string) => void
 }>;
 
 function SpaceComponent(props: Props) {
@@ -54,9 +56,9 @@ function SpaceComponent(props: Props) {
     return (
         <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={20}>
             <SpaceSearchComponent />
-            <SpaceHeaderComponent space={props.space} />
+            <SpaceHeaderComponent space={props.space} onSpaceNameChange={props.onSpaceNameChange} />
             <SpaceContentComponent space={props.space} />
-            <SpacesFooterComponent onNewFolder={() => console.log("new folder")} onNewSpace={() => console.log("new space")} onNewTab={() => console.log("new tab")} />
+            <SpacesFooterComponent onNewFolder={() => console.log("new folder")} onNewSpace={props.onNewSpace} onNewTab={() => console.log("new tab")} />
         </Flex >
     );
 }
