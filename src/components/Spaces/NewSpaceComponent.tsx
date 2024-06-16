@@ -77,7 +77,6 @@ function NewSpaceComponent(props: NewSpaceComponentProps) {
                 <Button type='primary' onClick={() => {
                     props.onCreateSpace(name);
                 }}
-                    onKeyDown={(event) => console.log(event.key.toString())}
                     disabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
                 <Button disabled={props.disableCancel} type="text" onClick={() => { props.onCancel(); }} style={{
                 }}>Cancel</Button>

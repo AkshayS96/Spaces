@@ -76,7 +76,7 @@ function SpaceComponent(props: Props) {
         <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={16}>
             <SpaceSearchComponent />
             <SpaceHeaderComponent space={props.space} onNameChange={(newName) => props.onNameChange(props.space.id, newName)} onDelete={() => props.onDelete(props.space.id)} onNewFolder={onNewFolder} />
-            <SpaceContentComponent space={props.space} onDataChange={props.onDataChange} />
+            <SpaceContentComponent space={props.space} onDataChange={props.onDataChange} onNewTab={onNewTab} />
             <SpacesFooterComponent onNewFolder={onNewFolder} onNewSpace={props.onNewSpace} onNewTab={onNewTab} />
         </Flex >
     );
