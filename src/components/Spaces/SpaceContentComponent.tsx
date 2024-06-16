@@ -2,7 +2,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 import { ChildrenType, FolderData, LeafData, SpaceData } from './Types';
 import type { GetProps, TreeDataNode } from 'antd';
-import { Dropdown, Flex, notification, Tree, Typography } from 'antd';
+import { ConfigProvider, Dropdown, Flex, notification, Tree, Typography } from 'antd';
 import { FolderClose, FolderFullClose, FolderOpen } from '../common/Icons';
 import type { NotificationArgsProps } from 'antd';
 
@@ -48,17 +48,18 @@ type NotificationPlacement = NotificationArgsProps['placement'];
 
 type Props = Readonly<{
     space: SpaceData
+    onDataChange: (spaceId: number, newSpaceData: SpaceData) => void
 }>;
 
 function SpaceContentComponent(props: Props) {
+
     const [expandState, setExpandState] = useState<{ [key: string]: boolean }>({});
     const [selectedNodes, setSelectedNodes] = useState<{ [key: string]: EventDataNode<BasicDataNode | TreeDataNode> }>({});
     const [contextMenuNode, setContextMenuNode] = useState<TreeDataNode>();
+    const [isEditClickedForTreeNode, setIsEditClickedForTreeNode] = useState<{ [key: string]: boolean }>({});
 
     const [notificationApi, contextHolder] = notification.useNotification();
-
-
-    const parsedTreeData = useMemo((): TreeDataNode[] => {
+    const parsedTreeData = ((space: SpaceData): TreeDataNode[] => {
 
         const recurseChild = (child: FolderData | LeafData): TreeDataNode => {
             if (child.dataType === ChildrenType.Leaf) {
@@ -86,8 +87,8 @@ function SpaceContentComponent(props: Props) {
             return folderTreeNodeData;
         }
 
-        return props.space.children.map((child) => recurseChild(child));
-    }, [props.space]);
+        return space.children.map((child) => recurseChild(child));
+    })(props.space);
 
     const onTreeNodeSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
         if (info.nativeEvent.metaKey) {
@@ -124,8 +125,10 @@ function SpaceContentComponent(props: Props) {
     };
 
     const onRename = (key: React.Key) => {
-        console.log(key);
+        setIsEditClickedForTreeNode({ ...isEditClickedForTreeNode, [key.toString()]: true });
     }
+
+    console.log(parsedTreeData);
 
     const getTreeNodeDropdownMenuItems = useCallback((): ItemType[] => {
         const menuItems: ItemType[] = [];
@@ -196,6 +199,30 @@ function SpaceContentComponent(props: Props) {
         return menuItems;
     }, [selectedNodes, contextMenuNode]);
 
+
+    const onFolderNameChange = (key: string, newName: string) => {
+        const recurseChild = (child: FolderData | LeafData): (FolderData | LeafData) => {
+            if (child.key === key) {
+                return {
+                    ...child,
+                    name: newName
+                }
+            } else if (child.dataType === ChildrenType.Leaf) {
+                return { ...child };
+            }
+            return {
+                ...child,
+                children: (child as FolderData).children.map((child) => recurseChild(child))
+            }
+        }
+
+        const newSpaceChildren = props.space.children.map((child) => {
+            return recurseChild(child);
+        });
+
+        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren });
+    }
+
     return (
         <>
             {contextHolder}
@@ -210,7 +237,6 @@ function SpaceContentComponent(props: Props) {
                         onExpand={onTreeNodeExpand}
                         treeData={parsedTreeData}
                         showIcon={false}
-                        // onRightClick={(info) => { info.event.stopPropagation(); setPopoverParent(info.node.key.toString()); }}
                         switcherIcon={null}
                         titleRender={(node: TreeDataNode): ReactNode => {
                             let titleNode: ReactNode = null;
@@ -219,7 +245,36 @@ function SpaceContentComponent(props: Props) {
                             } else {
                                 const isMultilevelDirectory = node?.children?.some((child) => !child.isLeaf);
                                 const folderIcon = (expandState[node.key.toString()]) ? <FolderOpen height='2em' width='2em' /> : (isMultilevelDirectory ? <FolderFullClose height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />)
-                                titleNode = <>{folderIcon}{<Text strong>{node.title?.toString()}</Text>}</>
+                                titleNode = <>{folderIcon}
+                                    {
+                                        <ConfigProvider theme={{
+                                            components: {
+                                                Input: {
+                                                    activeShadow: '',
+                                                    padding: 0,
+                                                    margin: 0,
+                                                    borderRadius: 0
+                                                },
+                                            }
+                                        }}>
+                                            <Text strong editable={{
+                                                editing: isEditClickedForTreeNode[node.key.toString()] ?? false,
+                                                enterIcon: null,
+                                                maxLength: 30,
+                                                triggerType: ['text'],
+                                                onChange: (newName: string) => {
+                                                    if (newName.length > 0) {
+                                                        onFolderNameChange(node.key.toString(), newName);
+                                                    }
+                                                    setIsEditClickedForTreeNode({ ...isEditClickedForTreeNode, [node.key.toString()]: false });
+                                                },
+                                                onCancel: () => {
+                                                    setIsEditClickedForTreeNode({ ...isEditClickedForTreeNode, [node.key.toString()]: false });
+                                                },
+                                            }}>{node.title?.toString()}
+                                            </Text>
+                                        </ConfigProvider>
+                                    }</>
                             }
                             return (
                                 <Flex

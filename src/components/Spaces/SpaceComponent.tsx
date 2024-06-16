@@ -3,14 +3,16 @@ import React, { useEffect, useState } from 'react';
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './SpaceContentComponent';
-import { SpaceData } from './Types';
+import { ChildrenType, SpaceData } from './Types';
 import { Flex, Space } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
 
 type Props = Readonly<{
     space: SpaceData,
     onNewSpace: () => void
-    onSpaceNameChange: (spaceId: number, newName: string) => void
+    onNameChange: (spaceId: number, newName: string) => void
+    onDelete: (spaceId: number) => void
+    onDataChange: (spaceId: number, newSpaceData: SpaceData) => void
 }>;
 
 function SpaceComponent(props: Props) {
@@ -53,12 +55,29 @@ function SpaceComponent(props: Props) {
     //     }
     // }, []);
 
+    console.log(props.space);
+
+    const onNewFolder = () => {
+        const newSpaceData = props.space
+        newSpaceData.children.push({
+            key: props.space.children.length.toString(),
+            name: "Untitled",
+            dataType: ChildrenType.Folder,
+            children: [],
+        })
+        props.onDataChange(props.space.id, newSpaceData);
+    }
+
+    const onNewTab = () => {
+        console.log("new tab");
+    }
+
     return (
-        <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={20}>
+        <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={16}>
             <SpaceSearchComponent />
-            <SpaceHeaderComponent space={props.space} onSpaceNameChange={props.onSpaceNameChange} />
-            <SpaceContentComponent space={props.space} />
-            <SpacesFooterComponent onNewFolder={() => console.log("new folder")} onNewSpace={props.onNewSpace} onNewTab={() => console.log("new tab")} />
+            <SpaceHeaderComponent space={props.space} onNameChange={(newName) => props.onNameChange(props.space.id, newName)} onDelete={() => props.onDelete(props.space.id)} onNewFolder={onNewFolder} />
+            <SpaceContentComponent space={props.space} onDataChange={props.onDataChange} />
+            <SpacesFooterComponent onNewFolder={onNewFolder} onNewSpace={props.onNewSpace} onNewTab={onNewTab} />
         </Flex >
     );
 }

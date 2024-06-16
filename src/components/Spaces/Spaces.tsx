@@ -1,27 +1,28 @@
 /* global chrome */
 
-import { Children, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import SpaceComponent from './SpaceComponent';
 import NewSpaceComponent from './NewSpaceComponent';
-import { ChildrenType, SpaceData } from './Types';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { SpaceData } from './Types';
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import tippy from 'tippy.js'
 
 import { Pagination } from 'swiper/modules';
+import { Flex, notification } from 'antd';
 
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
-import { Flex, Space } from 'antd';
 
 
 function Spaces() {
     const [spaces, setSpaces] = useState<SpaceData[]>([]);
     const [currentSpace, setCurrentSpace] = useState<number>(0);
-    const [isCreateSpace, setIsCreateSpace] = useState(true);
-
+    const [isCreateSpace, setIsCreateSpace] = useState(false);
+    const [swiper, setSwiper] = useState<SwiperClass>();
+    const [notificationApi, contextHolder] = notification.useNotification();
 
     useEffect(() => {
         const setupSpaces = async () => {
@@ -32,15 +33,7 @@ function Spaces() {
             //     spacesLocal = result.spaces;
             // }
 
-            const spacesLocal: SpaceData[] = []
-            spacesLocal.push({
-                id: 0,
-                isDefault: true,
-                name: "Untitled",
-                children: [],
-            });
-
-            setSpaces(spacesLocal);
+            // setSpaces(spacesLocal);
         }
         setupSpaces();
     }, []);
@@ -67,19 +60,22 @@ function Spaces() {
     }, [spaces]);
 
     const onCreateSpace = (name: string) => {
-        setSpaces([...spaces, {
+        setSpaces([...spaces.slice(0, currentSpace + 1), {
             id: spaces.length,
             name,
             children: [],
             isDefault: false
-        }]);
+        }, ...spaces.slice(currentSpace + 1)]);
+        if (swiper) {
+            swiper.slideNext();
+        }
+        setCurrentSpace(currentSpace + 1);
         setIsCreateSpace(false);
-        setCurrentSpace(spaces.length);
-    }
+    };
 
     const onCreateSpaceCancel = () => {
         setIsCreateSpace(false);
-    }
+    };
 
     const onSpaceNameChange = (spaceId: number, newName: string) => {
         const newSpaces = spaces.map((value: SpaceData, _) => {
@@ -92,28 +88,48 @@ function Spaces() {
             return value;
         });
         setSpaces(newSpaces);
+    };
+
+    const onSpaceDelete = (spaceId: number) => {
+        const newSpaces = spaces.filter((space: SpaceData) => {
+            return space.id !== spaceId;
+        });
+
+        setSpaces(newSpaces);
+    };
+
+    const onSpaceDataChange = (spaceId: number, newSpaceData: SpaceData) => {
+        const newSpaces = spaces.map((oldSpaceData) => {
+            if (oldSpaceData.id === spaceId) {
+                return newSpaceData;
+            }
+            return oldSpaceData
+        });
+        setSpaces(newSpaces);
     }
 
     // We have spaces data so populate that
     return (
         <Flex vertical justify='center' style={{ height: '95vh', padding: '10px' }}>
-            {isCreateSpace ?
+            {contextHolder}
+            {(isCreateSpace || spaces.length === 0) ?
                 (
-                    <NewSpaceComponent onCreateSpace={onCreateSpace} onCancel={onCreateSpaceCancel} />
+                    <NewSpaceComponent onCreateSpace={onCreateSpace} onCancel={onCreateSpaceCancel} disableCancel={spaces.length === 0} />
                 ) :
                 (
                     <>
                         <Swiper
+                            initialSlide={currentSpace}
                             spaceBetween={50}
                             slidesPerView={1}
-                            onSlideChange={() => console.log('slide change')}
-                            onSwiper={(swiper: any) => console.log(swiper)}
+                            onSlideChange={(swiper: SwiperClass) => setCurrentSpace(swiper.activeIndex)}
+                            onSwiper={(swiper: any) => setSwiper(swiper)}
                             modules={[Pagination]}
                             pagination={{
                                 dynamicBullets: true,
                                 clickable: true,
                                 bulletElement: 'div',
-                                renderBullet: (index: number, className: string) => {
+                                renderBullet: (_: number, className: string) => {
                                     return `<div class="${className}" id="swiper-navigation-bullet"></div>`;
                                 }
                             }}
@@ -125,8 +141,14 @@ function Spaces() {
                         >
                             {spaces.map((space, _index) => {
                                 return (
-                                    <SwiperSlide style={{ "height": "100%" }} key={space.id}>
-                                        <SpaceComponent space={space} onNewSpace={() => setIsCreateSpace(true)} onSpaceNameChange={onSpaceNameChange} />
+                                    <SwiperSlide style={{ "height": "100%" }} key={space.id} >
+                                        <SpaceComponent
+                                            space={space}
+                                            onNewSpace={() => setIsCreateSpace(true)}
+                                            onNameChange={onSpaceNameChange}
+                                            onDelete={onSpaceDelete}
+                                            onDataChange={onSpaceDataChange}
+                                        />
                                     </SwiperSlide>
                                 );
                             })}

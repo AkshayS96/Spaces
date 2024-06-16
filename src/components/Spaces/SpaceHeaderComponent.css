@@ -4,11 +4,10 @@
     inset-inline-start: 0px !important;
 }
 
-textarea {
-    padding: 0px !important;
+.ant-typography-edit-content>.ant-input {
+    border: 0px;
 }
 
-.ant-typography-edit-content>.ant-input {
-    margin: 0px;
-    border: 0px;
+textarea {
+    padding: 0px !important;
 }

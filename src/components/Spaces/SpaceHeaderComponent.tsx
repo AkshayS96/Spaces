@@ -8,7 +8,9 @@ import './SpaceHeaderComponent.css';
 
 type Props = Readonly<{
     space: SpaceData,
-    onSpaceNameChange: (spaceId: number, newName: string) => void
+    onNameChange: (newName: string) => void,
+    onNewFolder: () => void,
+    onDelete: () => void,
 }>;
 
 function SpaceHeaderComponent(props: Props) {
@@ -23,9 +25,11 @@ function SpaceHeaderComponent(props: Props) {
         {
             label: 'New Folder',
             key: '1',
+            onClick: () => props.onNewFolder(),
         }, {
             label: 'Delete Space',
             key: '2',
+            onClick: () => props.onDelete(),
         }];
     }, []);
 
@@ -39,7 +43,7 @@ function SpaceHeaderComponent(props: Props) {
                 }
             }
         }}>
-            <Flex justify="space-between">
+            <Flex justify="space-between" style={{ paddingLeft: 12 }} >
                 <Flex>
                     <Typography.Title
                         onClick={() => setIsRenameSpace(true)}
@@ -50,7 +54,7 @@ function SpaceHeaderComponent(props: Props) {
                                 editing: isRenameSpace,
                                 onChange: (newName: string) => {
                                     if (newName.length > 0) {
-                                        props.onSpaceNameChange(props.space.id, newName);
+                                        props.onNameChange(newName);
                                     }
                                     setIsRenameSpace(false);
                                 },

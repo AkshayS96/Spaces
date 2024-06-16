@@ -7,6 +7,7 @@ const { Title, Text } = Typography
 type NewSpaceComponentProps = Readonly<{
     onCreateSpace: (name: string) => void
     onCancel: () => void
+    disableCancel: boolean
 }>;
 
 function SpacesLogo() {
@@ -42,6 +43,22 @@ function SpacesLogo() {
 function NewSpaceComponent(props: NewSpaceComponentProps) {
     const [name, setName] = useState<string>("");
 
+    useEffect(() => {
+        const listener = (event: KeyboardEvent) => {
+            if (event.key === "Enter") {
+                if (name.length > 0) {
+                    props.onCreateSpace(name);
+                }
+            } else if (event.key === "Escape") {
+                props.onCancel();
+            }
+        }
+        document.addEventListener("keydown", listener)
+        return () => {
+            document.removeEventListener("keydown", listener);
+        }
+    }, [props.disableCancel, name]);
+
     return (
         <Flex style={{ height: "100%" }} vertical justify="space-between" align={"center"}>
             <Flex gap={10} style={{ width: "100%" }} vertical>
@@ -53,14 +70,16 @@ function NewSpaceComponent(props: NewSpaceComponentProps) {
                 <Flex vertical align="center" justify='center'>
                     <Input placeholder="Space name...." onChange={(event) => {
                         setName(event.target.value);
-                    }} />
+                    }} autoFocus />
                 </Flex>
             </Flex>
             <Flex vertical style={{ justifySelf: "flex-end", justifyContent: "space-around", width: "100%" }} gap={5}>
                 <Button type='primary' onClick={() => {
                     props.onCreateSpace(name);
-                }} disabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
-                <Button type="text" onClick={() => { props.onCancel(); }} style={{
+                }}
+                    onKeyDown={(event) => console.log(event.key.toString())}
+                    disabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
+                <Button disabled={props.disableCancel} type="text" onClick={() => { props.onCancel(); }} style={{
                 }}>Cancel</Button>
             </Flex>
         </Flex>

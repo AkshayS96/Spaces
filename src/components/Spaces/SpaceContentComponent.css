@@ -8,6 +8,11 @@
     width: 0px !important;
 }
 
+.ant-tree-switcher-noop {
+    height: 0px !important;
+    width: 0px !important;
+}
+
 .ant-tree-treenode:before {
     background-color: transparent !important;
     color: '';
@@ -17,4 +22,26 @@
     background-color: rgba(0, 0, 0, 0.04) !important;
     border-radius: 10px;
     transition: background-color 0.01s ease-in-out;
+}
+
+.ant-typography-edit-content {
+    margin: 0px;
+    border: 0px;
+    inset-inline-start: 0px !important;
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+
+.ant-typography-edit-content>.ant-input {
+    border: 0px;
+    background-color: inherit;
+    min-height: auto;
+}
+
+textarea {
+    padding: 0px !important;
+    background-color: inherit;
+    min-height: auto;
+    white-space: normal;
+    font-weight: 600;
 }
