@@ -15,6 +15,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
+import { Utils } from '../utils/Utils';
 
 
 function Spaces() {
@@ -61,7 +62,7 @@ function Spaces() {
 
     const onCreateSpace = (name: string) => {
         setSpaces([...spaces.slice(0, currentSpace + 1), {
-            id: spaces.length,
+            id: Utils.getUniqueIdNumber(),
             name,
             children: [],
             isDefault: false
@@ -94,7 +95,6 @@ function Spaces() {
         const newSpaces = spaces.filter((space: SpaceData) => {
             return space.id !== spaceId;
         });
-
         setSpaces(newSpaces);
     };
 

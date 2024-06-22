@@ -11,6 +11,7 @@ import { BasicDataNode, EventDataNode } from 'antd/es/tree';
 import { ItemType } from 'antd/es/menu/interface';
 import { NotificationPlacements } from 'antd/es/notification/interface';
 import { PlusOutlined } from '@ant-design/icons';
+import { Utils } from '../utils/Utils';
 
 type DirectoryTreeProps = GetProps<typeof Tree.DirectoryTree>;
 
@@ -99,79 +100,9 @@ function SpaceContentComponent(props: Props) {
         }
     };
 
-    const onRename = (key: React.Key) => {
+    const onRenameFolder = (key: React.Key) => {
         setIsEditClickedForTreeNode({ ...isEditClickedForTreeNode, [key.toString()]: true });
     }
-
-    const getTreeNodeDropdownMenuItems = useCallback((): ItemType[] => {
-        const menuItems: ItemType[] = [];
-
-        const selectedNodesValues = Object.values(selectedNodes);
-        const isContextMenuNodeInSelectedNodes = selectedNodesValues.some((node) => node.key.toString() === contextMenuNode?.key.toString());
-        const isLeaf = isContextMenuNodeInSelectedNodes ? false : contextMenuNode?.isLeaf;
-        const isFolder = isContextMenuNodeInSelectedNodes ? false : !contextMenuNode?.isLeaf;
-        const isMultileaf = (!isLeaf && !isFolder && selectedNodesValues.every((node) => node.isLeaf));
-
-        if (isLeaf) {
-            // Single leaf node
-            menuItems.push(...[{
-                label: "Copy Link",
-                key: "context_menu_single_leaf_copy_link",
-                onClick: () => { onCopyLinks([contextMenuNode?.key.toString() ?? '']) }
-            }, {
-                label: "Rename...",
-                key: "context_menu_single_leaf_rename",
-                onClick: () => { onRename(contextMenuNode?.key.toString() ?? '') }
-            }, {
-                label: "Delete",
-                key: "context_menu_single_leaf_delete"
-            }, {
-                label: "Duplicate",
-                key: "context_menu_single_leaf_duplicate",
-            }]);
-        } else if (isFolder) {
-            menuItems.push(...[{
-                label: "New Nested Folder",
-                key: "context_menu_single_folder_new_nested_folder"
-            }, {
-                label: "Rename...",
-                key: "context_menu_single_folder_rename",
-                onClick: () => { onRename(contextMenuNode?.key.toString() ?? '') }
-            },
-            {
-                label: "Duplicate",
-                key: "context_menu_single_folder_duplicate",
-            },
-            {
-                label: "Delete",
-                key: "context_menu_single_folder_delete"
-            }]);
-        } else if (isMultileaf) {
-            menuItems.push(...[
-                {
-                    label: "Copy Links",
-                    key: "context_menu_multiple_leaf_copy_links",
-                    onClick: () => { onCopyLinks(selectedNodesValues.map((node) => node.key.toString())) }
-                },
-                {
-                    label: `New Folder with ${selectedNodesValues.length} Items`,
-                    key: "context_menu_multiple_leaf_new_folder_with_items"
-                },
-                {
-                    label: "Delete",
-                    key: "context_menu_multiple_leaf_delete"
-                }]);
-        } else {
-            menuItems.push(...[
-                {
-                    label: "Delete",
-                    key: "context_menu_multiple_leaf_and_folder_delete"
-                }]);
-        }
-
-        return menuItems;
-    }, [selectedNodes, contextMenuNode]);
-
 
     const onFolderNameChange = (key: string, newName: string) => {
         const recurseChild = (child: FolderData | LeafData): (FolderData | LeafData) => {
@@ -194,7 +125,143 @@ function SpaceContentComponent(props: Props) {
         });
 
         props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren });
+        setContextMenuNode(undefined);
     }
+
+    const onNestedFolderCreate = (key: string | undefined) => {
+        if (!key) {
+            return;
+        }
+        const recurseChild = (child: FolderData | LeafData): (FolderData | LeafData) => {
+            if (child.dataType === ChildrenType.Leaf) {
+                return { ...child };
+            }
+
+            if (child.key === key) {
+                const folderData = child as FolderData;
+                return {
+                    ...child,
+                    children: [...folderData.children, {
+                        key: Utils.getUniqueId(),
+                        name: "Untitled",
+                        dataType: ChildrenType.Folder,
+                        expanded: true,
+                        children: [],
+                    }]
+                }
+            }
+            return {
+                ...child,
+                children: (child as FolderData).children.map((child) => recurseChild(child))
+            }
+        }
+
+        const newSpaceChildren = props.space.children.map((child) => {
+            return recurseChild(child);
+        });
+
+        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren });
+        setContextMenuNode(undefined);
+    }
+
+    const onFolderDelete = (key: string | undefined) => {
+        if (!key) {
+            return;
+        }
+        const recurseChild = (child: FolderData | LeafData): (FolderData | LeafData | undefined) => {
+            if (child.key === key) {
+                return undefined
+            }
+            if (child.dataType === ChildrenType.Leaf) {
+                return { ...child };
+            }
+            return {
+                ...child,
+                children: (child as FolderData).children.map((child) => recurseChild(child)).filter((newChild) => !!newChild) as (FolderData | LeafData)[]
+            }
+        }
+
+        const newSpaceChildren = props.space.children.map((child) => {
+            return recurseChild(child);
+        }).filter((newChild) => !!newChild);
+        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren as (FolderData | LeafData)[] });
+        setContextMenuNode(undefined);
+    }
+
+
+    const getTreeNodeDropdownMenuItems = useCallback((): ItemType[] => {
+        const menuItems: ItemType[] = [];
+
+        const selectedNodesValues = Object.values(selectedNodes);
+        const isContextMenuNodeInSelectedNodes = selectedNodesValues.some((node) => node.key.toString() === contextMenuNode?.key.toString());
+        const isLeaf = isContextMenuNodeInSelectedNodes ? false : contextMenuNode?.isLeaf;
+        const isFolder = isContextMenuNodeInSelectedNodes ? false : !contextMenuNode?.isLeaf;
+        const isMultileaf = (!isLeaf && !isFolder && selectedNodesValues.every((node) => node.isLeaf));
+
+        if (isLeaf) {
+            // Single leaf node
+            menuItems.push(...[{
+                label: "Copy Link",
+                key: "context_menu_single_leaf_copy_link",
+                onClick: () => { onCopyLinks([contextMenuNode?.key.toString() ?? '']) }
+            }, {
+                label: "Rename...",
+                key: "context_menu_single_leaf_rename",
+                onClick: () => { onRenameFolder(contextMenuNode?.key.toString() ?? '') }
+            }, {
+                label: "Delete",
+                key: "context_menu_single_leaf_delete",
+                onClick: () => { onFolderDelete(contextMenuNode?.key.toString()) }
+            }, {
+                label: "Duplicate",
+                key: "context_menu_single_leaf_duplicate",
+            }]);
+        } else if (isFolder) {
+            menuItems.push(...[{
+                label: "New Nested Folder",
+                key: "context_menu_single_folder_new_nested_folder",
+                onClick: () => { onNestedFolderCreate(contextMenuNode?.key.toString()) }
+            }, {
+                label: "Rename...",
+                key: "context_menu_single_folder_rename",
+                onClick: () => { onRenameFolder(contextMenuNode?.key.toString() ?? '') }
+            },
+            {
+                label: "Duplicate",
+                key: "context_menu_single_folder_duplicate",
+            },
+            {
+                label: "Delete",
+                key: "context_menu_single_folder_delete",
+                onClick: () => { onFolderDelete(contextMenuNode?.key.toString()) }
+            }]);
+        } else if (isMultileaf) {
+            menuItems.push(...[
+                {
+                    label: "Copy Links",
+                    key: "context_menu_multiple_leaf_copy_links",
+                    // Fix contextMenuNode copy as well
+                    onClick: () => { onCopyLinks((selectedNodesValues.map((node) => node.key.toString()))) }
+                },
+                {
+                    label: `New Folder with ${selectedNodesValues.length} Items`,
+                    key: "context_menu_multiple_leaf_new_folder_with_items"
+                },
+                {
+                    label: "Delete",
+                    key: "context_menu_multiple_leaf_delete",
+                    // onClick: () => { onFolderDelete(contextMenuNode?.key.toString())}
+                }]);
+        } else {
+            menuItems.push(...[
+                {
+                    label: "Delete",
+                    key: "context_menu_multiple_leaf_and_folder_delete"
+                }]);
+        }
+
+        return menuItems;
+    }, [selectedNodes, contextMenuNode]);
 
     return (
         <>
@@ -251,7 +318,8 @@ function SpaceContentComponent(props: Props) {
                                 items: getTreeNodeDropdownMenuItems(),
                             }}>
                                 <Flex
-                                    onContextMenu={(_) => {
+                                    onContextMenu={(event) => {
+                                        event?.stopPropagation();
                                         setContextMenuNode(node)
                                     }}
                                     gap={5}
@@ -263,7 +331,7 @@ function SpaceContentComponent(props: Props) {
                         );
                     }}
                 />
-                <Flex align='center' justify='flex-start' gap={12} style={{ padding: 8, paddingBottom: 4, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
+                <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
                     <PlusOutlined /> <Typography>New Tab</Typography>
                 </Flex>
             </Flex >

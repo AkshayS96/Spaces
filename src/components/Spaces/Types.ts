@@ -15,6 +15,7 @@ export type FolderData = {
     key: string,
     name: string,
     dataType: ChildrenType,
+    expanded: boolean,
     children: Array<FolderData | LeafData>
 }
 export type SpaceData = {

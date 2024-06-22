@@ -16,22 +16,20 @@ type Props = Readonly<{
 function SpaceHeaderComponent(props: Props) {
     const [isRenameSpace, setIsRenameSpace] = useState<boolean>(false);
 
-    const menuItems = useMemo(() => {
-        return [{
-            label: 'Rename Space...',
-            key: '0',
-            onClick: () => setIsRenameSpace(true)
-        },
-        {
-            label: 'New Folder',
-            key: '1',
-            onClick: () => props.onNewFolder(),
-        }, {
-            label: 'Delete Space',
-            key: '2',
-            onClick: () => props.onDelete(),
-        }];
-    }, []);
+    const menuItems = [{
+        label: 'Rename Space...',
+        key: '0',
+        onClick: () => setIsRenameSpace(true)
+    },
+    {
+        label: 'New Folder',
+        key: '1',
+        onClick: props.onNewFolder,
+    }, {
+        label: 'Delete Space',
+        key: '2',
+        onClick: props.onDelete,
+    }];
 
     return (
         <ConfigProvider theme={{

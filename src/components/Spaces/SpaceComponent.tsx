@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
@@ -6,6 +6,7 @@ import SpaceContentComponent from './SpaceContentComponent';
 import { ChildrenType, SpaceData } from './Types';
 import { Flex, Space } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
+import { Utils } from '../utils/Utils';
 
 type Props = Readonly<{
     space: SpaceData,
@@ -55,14 +56,13 @@ function SpaceComponent(props: Props) {
     //     }
     // }, []);
 
-    console.log(props.space);
-
     const onNewFolder = () => {
-        const newSpaceData = props.space
+        const newSpaceData = { ...props.space }
         newSpaceData.children.push({
-            key: props.space.children.length.toString(),
+            key: Utils.getUniqueId(),
             name: "Untitled",
             dataType: ChildrenType.Folder,
+            expanded: true,
             children: [],
         })
         props.onDataChange(props.space.id, newSpaceData);
