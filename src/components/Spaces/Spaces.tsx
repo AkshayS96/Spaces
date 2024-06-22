@@ -8,7 +8,7 @@ import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import tippy from 'tippy.js'
 
 import { Pagination } from 'swiper/modules';
-import { Flex, notification } from 'antd';
+import { Flex, Spin, notification } from 'antd';
 
 // Import Swiper styles
 import 'swiper/css';
@@ -16,36 +16,52 @@ import 'swiper/css/pagination';
 import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
 import { Utils } from '../utils/Utils';
+import { LoadingOutlined } from '@ant-design/icons';
 
 
 function Spaces() {
-    const [spaces, setSpaces] = useState<SpaceData[]>([]);
+    const [isLoading, setisLoading] = useState<boolean>(true);
+    const [spaces, setSpaces] = useState<{ id: number, name: string }[]>([]);
     const [currentSpace, setCurrentSpace] = useState<number>(0);
     const [isCreateSpace, setIsCreateSpace] = useState(false);
     const [swiper, setSwiper] = useState<SwiperClass>();
     const [notificationApi, contextHolder] = notification.useNotification();
 
+
+    // add loading state till we don't look up in local storage
     useEffect(() => {
         const setupSpaces = async () => {
-            // // Load up saved spaces
-            // const result = await chrome.storage.local.get("spaces");
-            // let spacesLocal = []
-            // if (result && result.spaces) {
-            //     spacesLocal = result.spaces;
-            // }
+            const spacesIdsStr = window.localStorage.getItem("spaces-extension-spaceIds"); // Change with chrome api later on
+            if (spacesIdsStr) {
+                const spaceIds: Array<number> = JSON.parse(spacesIdsStr);
+                if (spaceIds) {
+                    const spacesLocal: { id: number, name: string }[] = []
+                    spaceIds.forEach((spaceId) => {
+                        const spaceDataStr = window.localStorage.getItem(`spaces-extension-space-${spaceId}`);
+                        if (spaceDataStr) {
+                            const spaceData = JSON.parse(spaceDataStr);
+                            spacesLocal.push({
+                                id: spaceId,
+                                name: spaceData.name,
+                            });
+                        }
+                    });
 
-            // setSpaces(spacesLocal);
+                    setSpaces(spacesLocal);
+                }
+            }
+            setisLoading(false);
         }
         setupSpaces();
     }, []);
 
     useEffect(() => {
         if (spaces.length === 0) {
-            return () => { };
+            return;
         }
+        // Fix Hover later
 
         const tippyInstances = tippy(`#swiper-navigation-bullet`);
-
         tippyInstances.forEach((instance, index) => {
             instance.setProps({
                 content: `<div class="swiper-bullet-pagination-custom" >${spaces[index].name}  <kbd>Ctrl+Shift+${index}</kbd></div>`,
@@ -61,12 +77,11 @@ function Spaces() {
     }, [spaces]);
 
     const onCreateSpace = (name: string) => {
-        setSpaces([...spaces.slice(0, currentSpace + 1), {
-            id: Utils.getUniqueIdNumber(),
-            name,
-            children: [],
-            isDefault: false
-        }, ...spaces.slice(currentSpace + 1)]);
+        const newSpace = { id: Utils.getUniqueIdNumber(), name };
+        const newSpaces = [...spaces.slice(0, currentSpace + 1), newSpace, ...spaces.slice(currentSpace + 1)];
+        window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces.map((space) => space.id))); // Change with chrome api later on
+        window.localStorage.setItem(`spaces-extension-space-${newSpace.id}`, JSON.stringify({ ...newSpace, children: [] }));
+        setSpaces(newSpaces);
         if (swiper) {
             swiper.slideNext();
         }
@@ -78,38 +93,19 @@ function Spaces() {
         setIsCreateSpace(false);
     };
 
-    const onSpaceNameChange = (spaceId: number, newName: string) => {
-        const newSpaces = spaces.map((value: SpaceData, _) => {
-            if (value.id === spaceId) {
-                return {
-                    ...value,
-                    name: newName
-                }
-            }
-            return value;
+    const onDeleteSpace = (spaceIdToDelete: number) => {
+        const newSpaces = spaces.filter((space: { id: number, name: string }) => {
+            return space.id !== spaceIdToDelete;
         });
+        window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces)); // Change with chrome api later on
+        window.localStorage.removeItem(`spaces-extension-space-${spaceIdToDelete}`);
         setSpaces(newSpaces);
     };
-
-    const onSpaceDelete = (spaceId: number) => {
-        const newSpaces = spaces.filter((space: SpaceData) => {
-            return space.id !== spaceId;
-        });
-        setSpaces(newSpaces);
-    };
-
-    const onSpaceDataChange = (spaceId: number, newSpaceData: SpaceData) => {
-        const newSpaces = spaces.map((oldSpaceData) => {
-            if (oldSpaceData.id === spaceId) {
-                return newSpaceData;
-            }
-            return oldSpaceData
-        });
-        setSpaces(newSpaces);
-    }
 
     // We have spaces data so populate that
-    return (
+    return isLoading ? <Flex vertical style={{ height: '95vh' }} justify='center' align='center'>
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+    </Flex> : (
         <Flex vertical justify='center' style={{ height: '95vh', padding: '10px' }}>
             {contextHolder}
             {(isCreateSpace || spaces.length === 0) ?
@@ -143,11 +139,9 @@ function Spaces() {
                                 return (
                                     <SwiperSlide style={{ "height": "100%" }} key={space.id} >
                                         <SpaceComponent
-                                            space={space}
+                                            spaceId={space.id}
                                             onNewSpace={() => setIsCreateSpace(true)}
-                                            onNameChange={onSpaceNameChange}
-                                            onDelete={onSpaceDelete}
-                                            onDataChange={onSpaceDataChange}
+                                            onDelete={onDeleteSpace}
                                         />
                                     </SwiperSlide>
                                 );

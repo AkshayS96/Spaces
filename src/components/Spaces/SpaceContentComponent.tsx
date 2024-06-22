@@ -23,7 +23,7 @@ type NotificationPlacement = NotificationArgsProps['placement'];
 
 type Props = Readonly<{
     space: SpaceData
-    onDataChange: (spaceId: number, newSpaceData: SpaceData) => void,
+    onDataChange: (newSpaceData: SpaceData) => void,
     onNewTab: () => void,
 }>;
 
@@ -124,7 +124,7 @@ function SpaceContentComponent(props: Props) {
             return recurseChild(child);
         });
 
-        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren });
+        props.onDataChange({ ...props.space, children: newSpaceChildren });
         setContextMenuNode(undefined);
     }
 
@@ -160,7 +160,7 @@ function SpaceContentComponent(props: Props) {
             return recurseChild(child);
         });
 
-        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren });
+        props.onDataChange({ ...props.space, children: newSpaceChildren });
         setContextMenuNode(undefined);
     }
 
@@ -184,7 +184,7 @@ function SpaceContentComponent(props: Props) {
         const newSpaceChildren = props.space.children.map((child) => {
             return recurseChild(child);
         }).filter((newChild) => !!newChild);
-        props.onDataChange(props.space.id, { ...props.space, children: newSpaceChildren as (FolderData | LeafData)[] });
+        props.onDataChange({ ...props.space, children: newSpaceChildren as (FolderData | LeafData)[] });
         setContextMenuNode(undefined);
     }
 

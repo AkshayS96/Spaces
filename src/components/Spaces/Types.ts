@@ -21,6 +21,5 @@ export type FolderData = {
 export type SpaceData = {
     id: number,
     name: string,
-    isDefault: boolean,
     children: Array<FolderData | LeafData>
 };
