@@ -8,12 +8,20 @@ import { Dropdown } from "antd";
 type Props = {
     data: DataType[],
     onMove: (dragIds: string[], dragNodeData: DataType[], parentId: string | null, index: number) => void
+    onRename: (nodeId: string, newName: string) => void
 };
 
 export default function SpaceContentTree(props: Props) {
     const treeRef = useRef(null);
 
-    const onTreeNodeRename = ({ id, name }: any) => { console.log(id, name); };
+    const onTreeNodeRename = (args: {
+        id: string;
+        name: string;
+        node: NodeApi<DataType>;
+    }) => {
+        props.onRename(args.id, args.name);
+    };
+
     const onTreeNodeDelete = ({ ids }: any) => { console.log(ids); };
     // const onCreate = (args: any) => { console.log(args); return {} };
 

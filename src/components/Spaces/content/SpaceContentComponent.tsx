@@ -398,9 +398,27 @@ function SpaceContentComponent(props: Props) {
         props.onDataChange({ ...props.space, children: newChildren });
     }
 
+    const onRename = (nodeId: string, newName: string) => {
+        const renameNode = (node: DataType): DataType => {
+            if (node.id === nodeId) {
+                return {
+                    ...node,
+                    name: newName
+                };
+            }
+            return node.dataType === ChildrenType.Leaf ? { ...node } : { ...node, children: (node as FolderData).children.map((child) => renameNode(child)) };
+        }
+
+        const newSpaceData: SpaceData = { ...props.space, children: props.space.children.map((child) => renameNode(child)) };
+        props.onDataChange(newSpaceData);
+    };
+
     return (
         <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll', scrollbarWidth: "none" }} draggable={true}>
-            <SpaceContentTree data={[...props.space.children]} onMove={onMove} />
+            <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} />
+            <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
+                <PlusOutlined /> <Typography>New Tab</Typography>
+            </Flex>
         </Flex>
     )
 
