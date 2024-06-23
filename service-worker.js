@@ -1,15 +1,16 @@
 
 // Allows users to open the side panel by click on context menu item on the action toolbar icon
 chrome.runtime.onInstalled.addListener(() => {
+    //TODO: Create a multi menu item based context menu for all folders to directly save into folder
     chrome.contextMenus.create({
-        id: 'openFoldersSidePanel',
-        title: 'Open Folders',
+        id: 'saveToSpaces',
+        title: 'Save to Spaces',
         contexts: ['all']
     });
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "openFoldersSidePanel") {
-        chrome.sidePanel.open({ windowId: tab.windowId });
+    if (info.menuItemId === "saveToSpaces") {
+        console.log(info);
     }
 });
 
