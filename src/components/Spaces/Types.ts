@@ -4,7 +4,7 @@ export enum ChildrenType {
 };
 
 export type LeafData = {
-    key: string,
+    id: string,
     dataType: ChildrenType,
     tabId: number,
     url: URL,
@@ -12,14 +12,17 @@ export type LeafData = {
 }
 
 export type FolderData = {
-    key: string,
+    id: string,
     name: string,
     dataType: ChildrenType,
     expanded: boolean,
-    children: Array<FolderData | LeafData>
+    children: Array<DataType>
 }
+
+export type DataType = LeafData | FolderData
+
 export type SpaceData = {
-    id: number,
+    id: string,
     name: string,
-    children: Array<FolderData | LeafData>
+    children: Array<DataType>
 };

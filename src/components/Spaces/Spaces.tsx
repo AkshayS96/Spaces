@@ -17,11 +17,12 @@ import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
 import { Utils } from '../utils/Utils';
 import { LoadingOutlined } from '@ant-design/icons';
+import SpaceContentTree from './content/SpaceContentTree';
 
 
 function Spaces() {
     const [isLoading, setisLoading] = useState<boolean>(true);
-    const [spaces, setSpaces] = useState<{ id: number, name: string }[]>([]);
+    const [spaces, setSpaces] = useState<{ id: string, name: string }[]>([]);
     const [currentSpace, setCurrentSpace] = useState<number>(0);
     const [isCreateSpace, setIsCreateSpace] = useState(false);
     const [swiper, setSwiper] = useState<SwiperClass>();
@@ -33,9 +34,9 @@ function Spaces() {
         const setupSpaces = async () => {
             const spacesIdsStr = window.localStorage.getItem("spaces-extension-spaceIds"); // Change with chrome api later on
             if (spacesIdsStr) {
-                const spaceIds: Array<number> = JSON.parse(spacesIdsStr);
+                const spaceIds: Array<string> = JSON.parse(spacesIdsStr);
                 if (spaceIds) {
-                    const spacesLocal: { id: number, name: string }[] = []
+                    const spacesLocal: { id: string, name: string }[] = []
                     spaceIds.forEach((spaceId) => {
                         const spaceDataStr = window.localStorage.getItem(`spaces-extension-space-${spaceId}`);
                         if (spaceDataStr) {
@@ -77,7 +78,7 @@ function Spaces() {
     }, [spaces]);
 
     const onCreateSpace = (name: string) => {
-        const newSpace = { id: Utils.getUniqueIdNumber(), name };
+        const newSpace = { id: Utils.getUniqueId(), name };
         const newSpaces = [...spaces.slice(0, currentSpace + 1), newSpace, ...spaces.slice(currentSpace + 1)];
         window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces.map((space) => space.id))); // Change with chrome api later on
         window.localStorage.setItem(`spaces-extension-space-${newSpace.id}`, JSON.stringify({ ...newSpace, children: [] }));
@@ -93,8 +94,8 @@ function Spaces() {
         setIsCreateSpace(false);
     };
 
-    const onDeleteSpace = (spaceIdToDelete: number) => {
-        const newSpaces = spaces.filter((space: { id: number, name: string }) => {
+    const onDeleteSpace = (spaceIdToDelete: string) => {
+        const newSpaces = spaces.filter((space: { id: string, name: string }) => {
             return space.id !== spaceIdToDelete;
         });
         window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces)); // Change with chrome api later on
@@ -134,6 +135,7 @@ function Spaces() {
                             keyboard={{
                                 enabled: true
                             }}
+                            touchStartPreventDefault={false}
                         >
                             {spaces.map((space, _index) => {
                                 return (

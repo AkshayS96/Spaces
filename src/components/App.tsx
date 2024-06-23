@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Spaces from './Spaces/Spaces';
 import { Flex } from 'antd';
+import SpaceContentTree from './Spaces/content/SpaceContentTree';
 
 function App() {
   // const [appEnabled, setAppEnabled] = useState<boolean>(true);

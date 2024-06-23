@@ -2,17 +2,18 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
-import SpaceContentComponent from './SpaceContentComponent';
-import { ChildrenType, SpaceData } from './Types';
+import SpaceContentComponent from './content/SpaceContentComponent';
+import { ChildrenType, LeafData, SpaceData } from './Types';
 import { Flex, Space, Spin } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
 import { Utils } from '../utils/Utils';
 import { LoadingOutlined } from '@ant-design/icons';
+import SpaceContentTree from './content/SpaceContentTree';
 
 type Props = Readonly<{
-    spaceId: number,
+    spaceId: string,
     onNewSpace: () => void
-    onDelete: (spaceId: number) => void
+    onDelete: (spaceId: string) => void
 }>;
 
 function SpaceComponent(props: Props) {
@@ -81,7 +82,7 @@ function SpaceComponent(props: Props) {
     const onNewFolder = () => {
         const newSpaceData = { ...spaceData! };
         newSpaceData.children!.push({
-            key: Utils.getUniqueId(),
+            id: Utils.getUniqueId(),
             name: "Untitled",
             dataType: ChildrenType.Folder,
             expanded: true,
