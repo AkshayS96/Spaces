@@ -8,7 +8,7 @@ export type LeafDataNode = {
     id: string,
     type: NodeType,
     tabId: number,
-    url: URL,
+    url: string | undefined,
     name: string,
 }
 

@@ -26,7 +26,6 @@ function Spaces() {
     const [swiper, setSwiper] = useState<SwiperClass>();
     const [notificationApi, contextHolder] = notification.useNotification();
 
-    // add loading state till we don't look up in local storage
     useEffect(() => {
         const setupSpaces = async () => {
             const spacesIdsStr = window.localStorage.getItem("spaces-extension-spaceIds"); // Change with chrome api later on
@@ -58,7 +57,6 @@ function Spaces() {
             return;
         }
         // Fix Hover later
-
         const tippyInstances = tippy(`#swiper-navigation-bullet`);
         tippyInstances.forEach((instance, index) => {
             instance.setProps({

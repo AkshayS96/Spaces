@@ -14,7 +14,8 @@
         "storage",
         "tabs",
         "contextMenus",
-        "bookmarks"
+        "bookmarks",
+        "search"
     ],
     "background": {
         "service_worker": "service-worker.js",

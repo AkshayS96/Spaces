@@ -3,12 +3,11 @@ import React, { useCallback, useEffect, useState } from 'react';
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './content/SpaceContentComponent';
-import { ChildDataNodeType, LeafDataNode, NodeType, SpaceDataNode } from './Types';
+import { NodeType, SpaceDataNode } from './Types';
 import { Flex, Space, Spin } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
 import { Utils } from '../utils/Utils';
 import { LoadingOutlined } from '@ant-design/icons';
-import SpaceContentTree from './content/SpaceContentTree';
 
 type Props = Readonly<{
     spaceId: string,
@@ -27,6 +26,8 @@ function SpaceComponent(props: Props) {
             setLoading(false);
         }
     }, []);
+
+    // If it finds a tab in current window then switch to that otherwise open one
 
     // const [tabs, setTabs] = useState<MapType>({});
 
@@ -69,6 +70,7 @@ function SpaceComponent(props: Props) {
 
 
 
+
     const onDataChange = (newSpaceData: SpaceDataNode) => {
         setSpaceData(newSpaceData);
         window.localStorage.setItem(`spaces-extension-space-${spaceData?.id}`, JSON.stringify(newSpaceData));
@@ -85,20 +87,24 @@ function SpaceComponent(props: Props) {
             id: Utils.getUniqueId(),
             name: "Untitled",
             type: NodeType.Folder,
-            children: [{
-                id: Utils.getUniqueId() + 1,
-                name: "something",
-                url: new URL(`https://google.com/${Utils.getUniqueId() + 1}`),
-                tabId: 0,
-                type: NodeType.Leaf,
-            }],
+            children: [],
         });
 
         onDataChange(newSpaceData);
     }
 
-    const onNewTab = () => {
-        console.log("new tab");
+    const onNewTab = async () => {
+        //TODO: Change this with chrome api later on
+        const newTab = await chrome.tabs.create({});
+        const newSpaceData = { ...spaceData! };
+        newSpaceData.children!.push({
+            id: Utils.getUniqueId(),
+            name: newTab.title ?? "Untitled",
+            type: NodeType.Leaf,
+            tabId: newTab.id!,
+            url: newTab.url,
+        });
+        onDataChange(newSpaceData);
     }
 
     return (

@@ -39,7 +39,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
             menuItems.push(...[{
                 label: 'Copy Link',
                 key: 'context_menu_single_leaf_copy_link',
-                onClick: () => { onCopyLinks([(currentNode.data as LeafDataNode).url.toString()]) }
+                onClick: () => { onCopyLinks([(currentNode.data as LeafDataNode).url ?? '']) }
             }, {
                 label: 'Rename...',
                 key: 'context_menu_single_leaf_rename',
@@ -96,10 +96,10 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     // Fix contextMenuNode copy as well
                     onClick: () => {
                         console.log(selectedNodesValues);
-                        onCopyLinks([(currentNode.data as LeafDataNode).url.toString(), ...selectedNodesValues
+                        onCopyLinks([(currentNode.data as LeafDataNode).url ?? '', ...selectedNodesValues
                             .filter((node) => node.data.id !== currentNode.id)
                             .map((node) => {
-                                return (node.data as LeafDataNode).url.toString();
+                                return (node.data as LeafDataNode).url ?? '';
                             })])
                     }
                 },
@@ -148,7 +148,8 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     currentNode.tree.deselectAll();
                     event.stopPropagation();
                 }
-            }}>
+            }}
+            >
                 <Dropdown placement='bottom' trigger={['contextMenu']} arrow={true} menu={{
                     items: treeNodeDropdownMenuItems()
                 }}>
@@ -157,30 +158,39 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                         align='center'
                         style={{ width: '100%', padding: 8, backgroundColor: (currentNode.isSelected ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'
                     >
-                        {
-                            currentNode.isLeaf ? (
-                                <>
-                                    <FileOutlined height='2em' width='2em' /> <Typography>{(currentNode.data as LeafDataNode).name?.toString()}</Typography>
-                                </>
-                            ) : (<>
-                                {
-                                    currentNode.isOpen ? <FolderOpen height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />
-                                }
-                                <Text strong editable={{
-                                    editing: currentNode.isEditing,
-                                    enterIcon: null,
-                                    maxLength: 30,
-                                    triggerType: ['text'],
-                                    onChange: (newName: string) => {
-                                        if (newName.length > 0) {
-                                            currentNode.submit(newName);
+                        {<>
+                            {
+                                currentNode.isLeaf ? (
+                                    <>
+                                        <FileOutlined height='2em' width='2em' />
+                                    </>
+                                ) : (
+                                    <>
+                                        {
+                                            currentNode.isOpen ? <FolderOpen height='2em' width='2em' /> : <FolderClose height='2em' width='2em' />
                                         }
-                                    },
+                                    </>
+                                )
+                            }
+                            <Text strong editable={{
+                                editing: currentNode.isEditing,
+                                enterIcon: null,
+                                maxLength: 30,
+                                triggerType: ['text'],
+                                onChange: (newName: string) => {
+                                    if (newName.length > 0) {
+                                        currentNode.submit(newName);
+                                    }
+                                },
+                            }}
+                                onClick={(event) => {
+                                    currentNode.edit();
+                                    event.stopPropagation();
                                 }}
-                                >
-                                    {currentNode.data.name.toString()}
-                                </Text>
-                            </>)
+                            >
+                                {currentNode.data.name.toString()}
+                            </Text>
+                        </>
                         }
                     </Flex >
                 </Dropdown >

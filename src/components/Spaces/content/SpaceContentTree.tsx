@@ -1,11 +1,8 @@
-import { ForwardedRef, useRef } from "react"
-import { MoveHandler, NodeApi, Tree, TreeApi } from "react-arborist";
+import { useRef } from "react"
+import { NodeApi, Tree } from "react-arborist";
 import { NodeType, ChildDataNodeType } from "../Types";
-import { TreeProps } from "react-arborist/dist/module/types/tree-props";
 import SpaceContentTreeNode from "./SpaceContentTreeNode";
-import { Dropdown } from "antd";
 
-import './SpaceContentTree.css';
 import { IdObj } from "react-arborist/dist/module/types/utils";
 
 type Props = {
@@ -71,7 +68,6 @@ export default function SpaceContentTree(props: Props) {
         indent={20}
         rowHeight={50}
         data={props.data}
-        disableEdit={true}
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}
