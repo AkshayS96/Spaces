@@ -85,7 +85,13 @@ function SpaceComponent(props: Props) {
             id: Utils.getUniqueId(),
             name: "Untitled",
             type: NodeType.Folder,
-            children: [],
+            children: [{
+                id: Utils.getUniqueId() + 1,
+                name: "something",
+                url: new URL(`https://google.com/${Utils.getUniqueId() + 1}`),
+                tabId: 0,
+                type: NodeType.Leaf,
+            }],
         });
 
         onDataChange(newSpaceData);
