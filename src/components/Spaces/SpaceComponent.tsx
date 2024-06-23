@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
 import SpaceContentComponent from './content/SpaceContentComponent';
-import { ChildrenType, LeafData, SpaceData } from './Types';
+import { ChildDataNodeType, LeafDataNode, NodeType, SpaceDataNode } from './Types';
 import { Flex, Space, Spin } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
 import { Utils } from '../utils/Utils';
@@ -17,7 +17,7 @@ type Props = Readonly<{
 }>;
 
 function SpaceComponent(props: Props) {
-    const [spaceData, setSpaceData] = useState<SpaceData>();
+    const [spaceData, setSpaceData] = useState<SpaceDataNode>();
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
@@ -69,7 +69,7 @@ function SpaceComponent(props: Props) {
 
 
 
-    const onDataChange = (newSpaceData: SpaceData) => {
+    const onDataChange = (newSpaceData: SpaceDataNode) => {
         setSpaceData(newSpaceData);
         window.localStorage.setItem(`spaces-extension-space-${spaceData?.id}`, JSON.stringify(newSpaceData));
     }
@@ -84,8 +84,7 @@ function SpaceComponent(props: Props) {
         newSpaceData.children!.push({
             id: Utils.getUniqueId(),
             name: "Untitled",
-            dataType: ChildrenType.Folder,
-            expanded: true,
+            type: NodeType.Folder,
             children: [],
         });
 

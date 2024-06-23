@@ -1,28 +1,30 @@
-export enum ChildrenType {
+export enum NodeType {
     Leaf,
-    Folder
+    Folder,
+    Space
 };
 
-export type LeafData = {
+export type LeafDataNode = {
     id: string,
-    dataType: ChildrenType,
+    type: NodeType,
     tabId: number,
     url: URL,
     name: string,
 }
 
-export type FolderData = {
+export type FolderDataNode = {
     id: string,
     name: string,
-    dataType: ChildrenType,
-    expanded: boolean,
-    children: Array<DataType>
+    type: NodeType,
+    children: Array<ChildDataNodeType>
 }
 
-export type DataType = LeafData | FolderData
-
-export type SpaceData = {
+export type SpaceDataNode = {
     id: string,
     name: string,
-    children: Array<DataType>
+    type: NodeType
+    children: Array<ChildDataNodeType>
 };
+
+export type ChildDataNodeType = LeafDataNode | FolderDataNode
+export type AllDataNodeType = ChildDataNodeType | SpaceDataNode

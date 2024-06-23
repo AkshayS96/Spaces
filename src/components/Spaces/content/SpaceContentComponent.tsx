@@ -1,6 +1,6 @@
 
 import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ChildrenType, DataType, FolderData, LeafData, SpaceData } from '../Types';
+import { AllDataNodeType, ChildDataNodeType, FolderDataNode, LeafDataNode, NodeType, SpaceDataNode } from '../Types';
 import type { GetProps, TreeDataNode } from 'antd';
 import { Button, ConfigProvider, Dropdown, Flex, notification, Typography } from 'antd';
 import { FolderClose, FolderFullClose, FolderOpen } from '../../common/Icons';
@@ -31,8 +31,8 @@ const { Text } = Typography;
 type NotificationPlacement = NotificationArgsProps['placement'];
 
 type Props = Readonly<{
-    space: SpaceData
-    onDataChange: (newSpaceData: SpaceData) => void,
+    space: SpaceDataNode,
+    onDataChange: (newSpaceData: SpaceDataNode) => void,
     onNewTab: () => void,
 }>;
 
@@ -352,20 +352,21 @@ function SpaceContentComponent(props: Props) {
     //     </>
     // );
 
-    const onMove = (dragNodeIds: string[], dragNodesData: DataType[], parentId: string | null, index: number) => {
+    const onMove = (dragNodeIds: string[], dragNodesData: ChildDataNodeType[], parentId: string | null, index: number) => {
+        console.log(dragNodeIds, dragNodesData, parentId, index);
 
-        const removeDragNodes = (node: DataType): DataType | null => {
+        const removeDragNodes = (node: ChildDataNodeType): ChildDataNodeType | null => {
             if (dragNodeIds.find((dragNodeId) => dragNodeId === node.id)) {
                 return null;
             }
 
-            if (node.dataType === ChildrenType.Leaf) {
+            if (node.type === NodeType.Leaf) {
                 return node;
             }
 
-            const folderData = node as FolderData;
+            const folderData = node as FolderDataNode;
 
-            let newChildren: DataType[] = [];
+            let newChildren: ChildDataNodeType[] = [];
 
             folderData.children.forEach((child) => {
                 const updatedChild = removeDragNodes(child);
@@ -384,8 +385,8 @@ function SpaceContentComponent(props: Props) {
                 children: newChildren
             }
         }
-        let newChildren: DataType[] = [];
-        props.space.children.forEach((child) => {
+        let newChildren: ChildDataNodeType[] = [];
+        props.space.children.forEach((child: ChildDataNodeType) => {
             const updatedChild = removeDragNodes(child);
             if (updatedChild) {
                 newChildren.push(updatedChild);
@@ -399,34 +400,32 @@ function SpaceContentComponent(props: Props) {
     }
 
     const onRename = (nodeId: string, newName: string) => {
-        const renameNode = (node: DataType): DataType => {
+        const renameNode = (node: ChildDataNodeType): ChildDataNodeType => {
             if (node.id === nodeId) {
                 return {
                     ...node,
                     name: newName
                 };
             }
-            return node.dataType === ChildrenType.Leaf ? { ...node } : { ...node, children: (node as FolderData).children.map((child) => renameNode(child)) };
+            return node.type === NodeType.Leaf ? { ...node } : { ...node, children: (node as FolderDataNode).children.map((child) => renameNode(child)) };
         }
 
-        const newSpaceData: SpaceData = { ...props.space, children: props.space.children.map((child) => renameNode(child)) };
+        const newSpaceData: SpaceDataNode = { ...props.space, children: props.space.children.map((child: ChildDataNodeType) => renameNode(child)) };
         props.onDataChange(newSpaceData);
     };
 
     const onDelete = (ids: string[]) => {
-        const removeDragNodes = (node: DataType): DataType | null => {
+        const removeDragNodes = (node: ChildDataNodeType): ChildDataNodeType | null => {
             if (ids.find((dragNodeId) => dragNodeId === node.id)) {
                 return null;
             }
 
-            if (node.dataType === ChildrenType.Leaf) {
+            if (node.type === NodeType.Leaf) {
                 return node;
             }
 
-            const folderData = node as FolderData;
-
-            let newChildren: DataType[] = [];
-
+            const folderData = node as FolderDataNode;
+            let newChildren: ChildDataNodeType[] = [];
             folderData.children.forEach((child) => {
                 const updatedChild = removeDragNodes(child);
                 if (updatedChild) {
@@ -439,8 +438,8 @@ function SpaceContentComponent(props: Props) {
                 children: newChildren
             }
         }
-        let newChildren: DataType[] = [];
-        props.space.children.forEach((child) => {
+        let newChildren: ChildDataNodeType[] = [];
+        props.space.children.forEach((child: ChildDataNodeType) => {
             const updatedChild = removeDragNodes(child);
             if (updatedChild) {
                 newChildren.push(updatedChild);
@@ -449,9 +448,44 @@ function SpaceContentComponent(props: Props) {
         props.onDataChange({ ...props.space, children: newChildren });
     }
 
+    const onCreate = (parentNodeId: string | null, index: number) => {
+        const newChild: FolderDataNode = {
+            id: Utils.getUniqueId(),
+            name: "Untitled",
+            type: NodeType.Folder,
+            children: [],
+        };
+
+        const recurseTreeAndAdd = (node: (FolderDataNode | SpaceDataNode), index: number): (FolderDataNode | SpaceDataNode) => {
+            if (node.id === parentNodeId || parentNodeId === null) {
+                const newChildren = [...node.children]
+                newChildren.splice(index, 0, newChild);
+                return {
+                    ...node,
+                    children: newChildren
+                };
+            }
+
+            return {
+                ...node,
+                children: node.children.map((child) => {
+                    if (child.type === NodeType.Leaf) {
+                        return { ...child as LeafDataNode };
+                    } else if (child.type === NodeType.Folder) {
+                        return recurseTreeAndAdd(child as FolderDataNode, index);
+                    }
+                    return recurseTreeAndAdd(child as SpaceDataNode, index);
+                })
+            }
+        }
+
+        props.onDataChange({ ...recurseTreeAndAdd(props.space, index) });
+        return newChild.id;
+    }
+
     return (
         <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
-            <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} onDelete={onDelete} />
+            <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} onDelete={onDelete} onCreate={onCreate} />
             <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
                 <PlusOutlined /> <Typography>New Tab</Typography>
             </Flex>

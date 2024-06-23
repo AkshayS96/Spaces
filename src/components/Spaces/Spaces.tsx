@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import SpaceComponent from './SpaceComponent';
 import NewSpaceComponent from './NewSpaceComponent';
-import { SpaceData } from './Types';
 import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import tippy from 'tippy.js'
 
@@ -17,7 +16,6 @@ import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
 import { Utils } from '../utils/Utils';
 import { LoadingOutlined } from '@ant-design/icons';
-import SpaceContentTree from './content/SpaceContentTree';
 
 
 function Spaces() {
@@ -27,7 +25,6 @@ function Spaces() {
     const [isCreateSpace, setIsCreateSpace] = useState(false);
     const [swiper, setSwiper] = useState<SwiperClass>();
     const [notificationApi, contextHolder] = notification.useNotification();
-
 
     // add loading state till we don't look up in local storage
     useEffect(() => {

@@ -1,4 +1,4 @@
-import { SpaceData } from './Types';
+import { SpaceDataNode } from './Types';
 import { Button, ConfigProvider, Dropdown, Flex, Input, Space, Typography } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { Utils } from '../utils/Utils';
@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import './SpaceHeaderComponent.css';
 
 type Props = Readonly<{
-    space: SpaceData,
+    space: SpaceDataNode,
     onNameChange: (newName: string) => void,
     onNewFolder: () => void,
     onDelete: () => void,

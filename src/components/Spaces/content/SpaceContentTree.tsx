@@ -1,17 +1,19 @@
 import { ForwardedRef, useRef } from "react"
 import { MoveHandler, NodeApi, Tree, TreeApi } from "react-arborist";
-import { ChildrenType, DataType, FolderData, LeafData, SpaceData } from "../Types";
+import { NodeType, ChildDataNodeType } from "../Types";
 import { TreeProps } from "react-arborist/dist/module/types/tree-props";
 import SpaceContentTreeNode from "./SpaceContentTreeNode";
 import { Dropdown } from "antd";
 
 import './SpaceContentTree.css';
+import { IdObj } from "react-arborist/dist/module/types/utils";
 
 type Props = {
-    data: DataType[],
-    onMove: (dragIds: string[], dragNodeData: DataType[], parentId: string | null, index: number) => void
+    data: ChildDataNodeType[],
+    onMove: (dragIds: string[], dragNodeData: ChildDataNodeType[], parentId: string | null, index: number) => void
     onRename: (nodeId: string, newName: string) => void,
     onDelete: (nodeIds: string[]) => void,
+    onCreate: (parentId: string | null, index: number) => string
 };
 
 export default function SpaceContentTree(props: Props) {
@@ -20,7 +22,7 @@ export default function SpaceContentTree(props: Props) {
     const onTreeNodeRename = (args: {
         id: string;
         name: string;
-        node: NodeApi<DataType>;
+        node: NodeApi<ChildDataNodeType>;
     }) => {
         props.onRename(args.id, args.name);
     };
@@ -28,7 +30,7 @@ export default function SpaceContentTree(props: Props) {
     const onTreeNodeDelete = (
         args: {
             ids: string[];
-            nodes: NodeApi<DataType>[];
+            nodes: NodeApi<ChildDataNodeType>[];
         }) => {
         props.onDelete(args.ids)
     };
@@ -36,23 +38,30 @@ export default function SpaceContentTree(props: Props) {
 
     const onTreeNodeMove = (args: {
         dragIds: string[];
-        dragNodes: NodeApi<DataType>[];
+        dragNodes: NodeApi<ChildDataNodeType>[];
         parentId: string | null;
-        parentNode: NodeApi<DataType> | null;
+        parentNode: NodeApi<ChildDataNodeType> | null;
         index: number;
     }) => {
         const filteredDragIds: string[] = [];
-        const filteredDragNodeData: DataType[] = [];
+        const filteredDragNodeData: ChildDataNodeType[] = [];
         args.dragNodes.forEach((dragNode) => {
-            // Add check for position change within same parent
-            // if (dragNode.parent?.id !== args.parentId || args.parentId === null) {
             filteredDragIds.push(dragNode.id);
             filteredDragNodeData.push(dragNode.data);
-            // }
         });
-        if (filteredDragIds.length && (args.parentNode?.data.dataType === ChildrenType.Folder || args.parentNode === null)) {
+        if (filteredDragIds.length && (args.parentNode?.data.type === NodeType.Folder || args.parentNode === null)) {
             props.onMove(filteredDragIds, filteredDragNodeData, args.parentId, args.index);
         }
+    }
+
+    const onTreeNodeCreate = (args: {
+        parentId: string | null,
+        parentNode: NodeApi<ChildDataNodeType> | null,
+        index: number,
+        type: "internal" | "leaf"
+    }): (IdObj | null) => {
+        console.log(args);
+        return { id: props.onCreate(args.parentId, args.index) };
     }
 
     return <Tree
@@ -66,7 +75,7 @@ export default function SpaceContentTree(props: Props) {
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}
-    // onCreate={props.onCreate}
+        onCreate={onTreeNodeCreate}
     >
         {SpaceContentTreeNode}
     </Tree>
