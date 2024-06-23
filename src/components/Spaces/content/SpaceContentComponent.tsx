@@ -413,9 +413,45 @@ function SpaceContentComponent(props: Props) {
         props.onDataChange(newSpaceData);
     };
 
+    const onDelete = (ids: string[]) => {
+        const removeDragNodes = (node: DataType): DataType | null => {
+            if (ids.find((dragNodeId) => dragNodeId === node.id)) {
+                return null;
+            }
+
+            if (node.dataType === ChildrenType.Leaf) {
+                return node;
+            }
+
+            const folderData = node as FolderData;
+
+            let newChildren: DataType[] = [];
+
+            folderData.children.forEach((child) => {
+                const updatedChild = removeDragNodes(child);
+                if (updatedChild) {
+                    newChildren.push(updatedChild);
+                }
+            });
+
+            return {
+                ...node,
+                children: newChildren
+            }
+        }
+        let newChildren: DataType[] = [];
+        props.space.children.forEach((child) => {
+            const updatedChild = removeDragNodes(child);
+            if (updatedChild) {
+                newChildren.push(updatedChild);
+            }
+        });
+        props.onDataChange({ ...props.space, children: newChildren });
+    }
+
     return (
-        <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll', scrollbarWidth: "none" }} draggable={true}>
-            <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} />
+        <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
+            <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} onDelete={onDelete} />
             <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
                 <PlusOutlined /> <Typography>New Tab</Typography>
             </Flex>

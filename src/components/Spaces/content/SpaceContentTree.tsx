@@ -5,10 +5,13 @@ import { TreeProps } from "react-arborist/dist/module/types/tree-props";
 import SpaceContentTreeNode from "./SpaceContentTreeNode";
 import { Dropdown } from "antd";
 
+import './SpaceContentTree.css';
+
 type Props = {
     data: DataType[],
     onMove: (dragIds: string[], dragNodeData: DataType[], parentId: string | null, index: number) => void
-    onRename: (nodeId: string, newName: string) => void
+    onRename: (nodeId: string, newName: string) => void,
+    onDelete: (nodeIds: string[]) => void,
 };
 
 export default function SpaceContentTree(props: Props) {
@@ -22,7 +25,13 @@ export default function SpaceContentTree(props: Props) {
         props.onRename(args.id, args.name);
     };
 
-    const onTreeNodeDelete = ({ ids }: any) => { console.log(ids); };
+    const onTreeNodeDelete = (
+        args: {
+            ids: string[];
+            nodes: NodeApi<DataType>[];
+        }) => {
+        props.onDelete(args.ids)
+    };
     // const onCreate = (args: any) => { console.log(args); return {} };
 
     const onTreeNodeMove = (args: {
@@ -47,11 +56,13 @@ export default function SpaceContentTree(props: Props) {
     }
 
     return <Tree
+        className="space-content-tree"
         ref={treeRef}
         width="100%"
         indent={20}
         rowHeight={50}
         data={props.data}
+        disableEdit={true}
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}
