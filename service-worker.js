@@ -31,3 +31,10 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
         }
     }
 });
+
+
+const channel = new BroadcastChannel("space-sw-messages");
+channel.addEventListener('message', event => {
+    console.log(event);
+    channel.postMessage("message_from_sw");
+});

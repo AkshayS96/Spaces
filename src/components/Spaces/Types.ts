@@ -1,7 +1,8 @@
 export enum NodeType {
     Leaf,
     Folder,
-    Space
+    NewTab,
+    Space,
 };
 
 export type LeafDataNode = {
@@ -19,6 +20,14 @@ export type FolderDataNode = {
     children: Array<ChildDataNodeType>
 }
 
+
+export type NewTabNode = {
+    id: string,
+    type: NodeType,
+    name?: string,
+    onClicked: () => void
+}
+
 export type SpaceDataNode = {
     id: string,
     name: string,
@@ -26,5 +35,5 @@ export type SpaceDataNode = {
     children: Array<ChildDataNodeType>
 };
 
-export type ChildDataNodeType = LeafDataNode | FolderDataNode
+export type ChildDataNodeType = LeafDataNode | FolderDataNode | NewTabNode
 export type AllDataNodeType = ChildDataNodeType | SpaceDataNode

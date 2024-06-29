@@ -1,6 +1,6 @@
 
 import { ChildDataNodeType, FolderDataNode, LeafDataNode, NodeType, SpaceDataNode } from '../Types';
-import { Flex, Typography } from 'antd';
+import { Divider, Flex, Typography } from 'antd';
 import type { NotificationArgsProps } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { Utils } from '../../utils/Utils';
@@ -24,7 +24,7 @@ function SpaceContentComponent(props: Props) {
                 return null;
             }
 
-            if (node.type === NodeType.Leaf) {
+            if (node.type === NodeType.Leaf || node.type === NodeType.NewTab) {
                 return node;
             }
 
@@ -150,7 +150,8 @@ function SpaceContentComponent(props: Props) {
     return (
         <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
             <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} onDelete={onDelete} onCreate={onCreate} />
-            <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder' onClick={props.onNewTab}>
+            <Divider />
+            <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder'>
                 <PlusOutlined /> <Typography>New Tab</Typography>
             </Flex>
         </Flex>

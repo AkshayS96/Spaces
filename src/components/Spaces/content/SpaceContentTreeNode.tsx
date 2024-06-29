@@ -1,7 +1,7 @@
-import { ChildDataNodeType, LeafDataNode } from '../Types';
+import { ChildDataNodeType, LeafDataNode, NewTabNode, NodeType } from '../Types';
 import { NodeRendererProps } from 'react-arborist';
-import { Dropdown, Flex, Typography, notification } from 'antd';
-import { FileOutlined } from '@ant-design/icons';
+import { Divider, Dropdown, Flex, Typography, notification } from 'antd';
+import { FileOutlined, PlusOutlined } from '@ant-design/icons';
 import { FolderClose, FolderOpen } from '../../common/Icons';
 import { useCallback } from 'react';
 import { ItemType } from 'antd/es/menu/interface';
@@ -131,7 +131,6 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
         return menuItems;
     }, [currentNode, onCopyLinks]);
 
-
     return (
         <>
             {contextHolder}
@@ -188,7 +187,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                     event.stopPropagation();
                                 }}
                             >
-                                {currentNode.data.name.toString()}
+                                {currentNode.data.name?.toString()}
                             </Text>
                         </>
                         }

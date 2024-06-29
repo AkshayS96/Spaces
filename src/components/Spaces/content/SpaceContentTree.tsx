@@ -5,6 +5,8 @@ import SpaceContentTreeNode from "./SpaceContentTreeNode";
 
 import { IdObj } from "react-arborist/dist/module/types/utils";
 
+import './SpaceContentTree.css';
+
 type Props = {
     data: ChildDataNodeType[],
     onMove: (dragIds: string[], dragNodeData: ChildDataNodeType[], parentId: string | null, index: number) => void
