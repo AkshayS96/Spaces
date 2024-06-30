@@ -1,8 +1,8 @@
 import { ChildDataNodeType, LeafDataNode } from '../Types';
 import { NodeRendererProps } from 'react-arborist';
-import { Dropdown, Flex, Typography, notification } from 'antd';
+import { Button, Dropdown, Flex, Typography, notification } from 'antd';
 import { FileOutlined } from '@ant-design/icons';
-import { FolderClose, FolderOpen } from '../../common/Icons';
+import { FolderClose, FolderOpen, WebsiteIcon } from '../../common/Icons';
 import { useCallback, useContext } from 'react';
 import { ItemType } from 'antd/es/menu/interface';
 import { SpaceContext } from '../SpaceContextUtils';
@@ -161,7 +161,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     items: treeNodeDropdownMenuItems()
                 }}>
                     <Flex
-                        gap={5}
+                        gap={8}
                         align='center'
                         style={{ width: '100%', padding: 8, backgroundColor: (currentNode.isSelected ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'
                     >
@@ -171,7 +171,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                     <>
                                         {
                                             (currentNode.data as LeafDataNode).iconSrc ?
-                                                <Icon height="2em" width="2em" component={() => <img height="100%" width="100%" src={(currentNode.data as LeafDataNode).iconSrc} />} /> :
+                                                <WebsiteIcon height="16px" width="16px" src={(currentNode.data as LeafDataNode).iconSrc ?? ''} /> :
                                                 <FileOutlined height='2em' width='2em' />
                                         }
                                     </>
@@ -185,11 +185,19 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                             }
                             <Text
                                 strong
-                                ellipsis={true}
+                                ellipsis={{
+                                    tooltip: {
+                                        title: currentNode.data.name
+                                    },
+                                }}
+                                style={
+                                    {
+                                        textOverflow: 'ellipsis',
+                                    }
+                                }
                                 editable={{
-                                    editing: true, // CHange
+                                    editing: currentNode.isEditing,
                                     enterIcon: null,
-                                    maxLength: 30,
                                     tooltip: true,
                                     triggerType: ['text'],
                                     onChange: (newName: string) => {
@@ -209,6 +217,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                             >
                                 {currentNode.data.name?.toString()}
                             </Text>
+                            {/* Add a close button here */}
                         </>
                         }
                     </Flex >

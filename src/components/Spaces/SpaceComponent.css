@@ -51,6 +51,7 @@ textarea {
     white-space: nowrap;
     font-weight: 600;
     border-radius: 0px !important;
+    width: 100%;
 }
 
 textarea::-webkit-scrollbar {
