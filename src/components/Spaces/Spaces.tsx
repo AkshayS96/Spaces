@@ -14,7 +14,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import './Spaces.css';
 import 'tippy.js/dist/tippy.css'; // optional for styling
-import { Utils } from '../utils/Utils';
+import { Utils } from './Utils';
 import { LoadingOutlined } from '@ant-design/icons';
 
 

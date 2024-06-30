@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useContext, useRef } from "react"
 import { NodeApi, Tree } from "react-arborist";
 import { NodeType, ChildDataNodeType } from "../Types";
 import SpaceContentTreeNode from "./SpaceContentTreeNode";
@@ -6,24 +6,20 @@ import SpaceContentTreeNode from "./SpaceContentTreeNode";
 import { IdObj } from "react-arborist/dist/module/types/utils";
 
 import './SpaceContentTree.css';
+import { SpaceContext } from "../SpaceContextUtils";
+import { Utils } from "../Utils";
 
-type Props = {
-    data: ChildDataNodeType[],
-    onMove: (dragIds: string[], dragNodeData: ChildDataNodeType[], parentId: string | null, index: number) => void
-    onRename: (nodeId: string, newName: string) => void,
-    onDelete: (nodeIds: string[]) => void,
-    onCreate: (parentId: string | null, index: number) => string
-};
-
-export default function SpaceContentTree(props: Props) {
+export default function SpaceContentTree() {
     const treeRef = useRef(null);
+
+    const spaceContext = useContext(SpaceContext);
 
     const onTreeNodeRename = (args: {
         id: string;
         name: string;
         node: NodeApi<ChildDataNodeType>;
     }) => {
-        props.onRename(args.id, args.name);
+        spaceContext.onChildNodeRename(args.id, args.name);
     };
 
     const onTreeNodeDelete = (
@@ -31,7 +27,7 @@ export default function SpaceContentTree(props: Props) {
             ids: string[];
             nodes: NodeApi<ChildDataNodeType>[];
         }) => {
-        props.onDelete(args.ids)
+        spaceContext.onChildNodeDelete(args.ids)
     };
 
     const onTreeNodeMove = (args: {
@@ -48,7 +44,7 @@ export default function SpaceContentTree(props: Props) {
             filteredDragNodeData.push(dragNode.data);
         });
         if (filteredDragIds.length && (args.parentNode?.data.type === NodeType.Folder || args.parentNode === null)) {
-            props.onMove(filteredDragIds, filteredDragNodeData, args.parentId, args.index);
+            spaceContext.onChildNodeMove(filteredDragIds, filteredDragNodeData, args.parentId, args.index);
         }
     }
 
@@ -58,8 +54,10 @@ export default function SpaceContentTree(props: Props) {
         index: number,
         type: "internal" | "leaf"
     }): (IdObj | null) => {
-        console.log(args);
-        return { id: props.onCreate(args.parentId, args.index) };
+        // if (args.type ==='leaf') {
+        //     return { id: spaceContext.onChildFolderNodeCreate(args.parentId ?? undefined, args.index) };
+        // }
+        return { id: spaceContext.onChildFolderNodeCreate(Utils.NewFolder(), args.parentId ?? undefined, args.index) };
     }
 
     return <Tree
@@ -68,7 +66,7 @@ export default function SpaceContentTree(props: Props) {
         width="100%"
         indent={20}
         rowHeight={50}
-        data={props.data}
+        data={spaceContext.spaceData?.children}
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}

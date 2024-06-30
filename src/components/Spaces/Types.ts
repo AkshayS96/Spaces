@@ -8,8 +8,8 @@ export enum NodeType {
 export type LeafDataNode = {
     id: string,
     type: NodeType,
-    tabId: number,
-    url: string | undefined,
+    url?: string,
+    iconSrc?: string,
     name: string,
 }
 
@@ -20,14 +20,6 @@ export type FolderDataNode = {
     children: Array<ChildDataNodeType>
 }
 
-
-export type NewTabNode = {
-    id: string,
-    type: NodeType,
-    name?: string,
-    onClicked: () => void
-}
-
 export type SpaceDataNode = {
     id: string,
     name: string,
@@ -35,5 +27,5 @@ export type SpaceDataNode = {
     children: Array<ChildDataNodeType>
 };
 
-export type ChildDataNodeType = LeafDataNode | FolderDataNode | NewTabNode
+export type ChildDataNodeType = LeafDataNode | FolderDataNode
 export type AllDataNodeType = ChildDataNodeType | SpaceDataNode

@@ -1,20 +1,17 @@
 import { SpaceDataNode } from './Types';
 import { Button, ConfigProvider, Dropdown, Flex, Input, Space, Typography } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
-import { Utils } from '../utils/Utils';
-import { useMemo, useState } from 'react';
+import { Utils } from './Utils';
+import { useContext, useMemo, useState } from 'react';
 
 import './SpaceHeaderComponent.css';
+import { SpaceContext } from './SpaceContextUtils';
 
-type Props = Readonly<{
-    space: SpaceDataNode,
-    onNameChange: (newName: string) => void,
-    onNewFolder: () => void,
-    onDelete: () => void,
-}>;
 
-function SpaceHeaderComponent(props: Props) {
+function SpaceHeaderComponent() {
     const [isRenameSpace, setIsRenameSpace] = useState<boolean>(false);
+
+    const spaceContext = useContext(SpaceContext);
 
     const menuItems = [{
         label: 'Rename Space...',
@@ -24,11 +21,13 @@ function SpaceHeaderComponent(props: Props) {
     {
         label: 'New Folder',
         key: '1',
-        onClick: props.onNewFolder,
+        onClick: () => { spaceContext.onChildFolderNodeCreate(Utils.NewFolder()); },
     }, {
         label: 'Delete Space',
         key: '2',
-        onClick: props.onDelete,
+        onClick: () => {
+            spaceContext.onSpaceDelete();
+        },
     }];
 
     return (
@@ -52,16 +51,16 @@ function SpaceHeaderComponent(props: Props) {
                                 editing: isRenameSpace,
                                 onChange: (newName: string) => {
                                     if (newName.length > 0) {
-                                        props.onNameChange(newName);
+                                        spaceContext.onSpaceNameChange(newName);
+                                        setIsRenameSpace(false);
                                     }
-                                    setIsRenameSpace(false);
                                 },
                                 onCancel: () => {
                                     setIsRenameSpace(false);
                                 },
                             }
                         } level={4} style={{ margin: 0, border: '0px' }}>
-                        {Utils.capitalize(props.space.name)}
+                        {Utils.capitalize(spaceContext.spaceData?.name ?? "")}
                     </Typography.Title>
                 </Flex>
                 <Flex>

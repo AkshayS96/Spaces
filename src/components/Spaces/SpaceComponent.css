@@ -48,6 +48,11 @@ textarea {
     padding: 0px !important;
     background-color: inherit;
     min-height: auto;
-    white-space: normal;
+    white-space: nowrap;
     font-weight: 600;
+    border-radius: 0px !important;
+}
+
+textarea::-webkit-scrollbar {
+    display: none;
 }

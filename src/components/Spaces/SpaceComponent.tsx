@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
-
 import SpaceHeaderComponent from './SpaceHeaderComponent';
 import SpaceSearchComponent from './SpaceSearchComponent';
-import SpaceContentComponent from './content/SpaceContentComponent';
-import { NodeType, SpaceDataNode } from './Types';
-import { Flex, Space, Spin } from 'antd';
+import { Flex, Spin } from 'antd';
 import SpacesFooterComponent from './SpaceFooterComponent';
-import { Utils } from '../utils/Utils';
 import { LoadingOutlined } from '@ant-design/icons';
+import { SpaceContext, useSpaceData } from './SpaceContextUtils';
+import SpaceContentTree from './content/SpaceContentTree';
+
+import './SpaceComponent.css';
 
 type Props = Readonly<{
     spaceId: string,
@@ -16,51 +15,44 @@ type Props = Readonly<{
 }>;
 
 function SpaceComponent(props: Props) {
-    const [spaceData, setSpaceData] = useState<SpaceDataNode>();
-    const [loading, setLoading] = useState<boolean>(true);
-
-    useEffect(() => {
-        chrome.storage.local.get(`spaces-extension-space-${props.spaceId}`, (items: { [key: string]: any }) => {
-            const storedSpaceData = items[`spaces-extension-space-${props.spaceId}`]
-            if (storedSpaceData) {
-                setSpaceData(storedSpaceData);
-                setLoading(false);
-            }
-        });
-    }, []);
-
-    const onDataChange = (newSpaceData: SpaceDataNode) => {
-        setSpaceData(newSpaceData);
-        chrome.storage.local.set({ [`spaces-extension-space-${spaceData?.id}`]: newSpaceData });
-    }
-
-    const onNameChange = (newName: string) => {
-        onDataChange({ ...spaceData!, name: newName });
-    };
-
-
-    const onNewFolder = () => {
-        const newSpaceData = { ...spaceData! };
-        newSpaceData.children!.push({
-            id: Utils.getUniqueId(),
-            name: "Untitled",
-            type: NodeType.Folder,
-            children: [],
-        });
-
-        onDataChange(newSpaceData);
-    }
+    const { spaceData,
+        spaceLoading,
+        onSpaceNameChange,
+        onSpaceDelete,
+        onNewSpace,
+        onChildNodeMove,
+        onChildNodeRename,
+        onChildFolderNodeCreate,
+        onChildNodeDelete,
+        addCurrentTab,
+    } = useSpaceData(props.spaceId, props.onDelete, props.onNewSpace);
 
     return (
-        loading ? <Flex vertical style={{ height: '100%' }} justify='center' align='center'>
-            <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
-        </Flex> :
-            <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={16}>
-                <SpaceSearchComponent />
-                <SpaceHeaderComponent space={spaceData!} onNameChange={onNameChange} onDelete={() => props.onDelete(spaceData!.id)} onNewFolder={onNewFolder} />
-                <SpaceContentComponent space={spaceData!} onDataChange={onDataChange} />
-                <SpacesFooterComponent onNewFolder={onNewFolder} onNewSpace={props.onNewSpace} />
-            </Flex >
+        <SpaceContext.Provider value={{
+            spaceData,
+            onSpaceNameChange,
+            onSpaceDelete,
+            onNewSpace,
+            onChildNodeMove,
+            onChildNodeRename,
+            onChildFolderNodeCreate,
+            onChildNodeDelete,
+            addCurrentTab
+        }}>
+            {spaceLoading ? <Flex vertical style={{ height: '100%' }} justify='center' align='center'>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
+            </Flex> :
+                <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={16}>
+                    <SpaceSearchComponent />
+                    <SpaceHeaderComponent />
+                    <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
+                        <SpaceContentTree />
+                    </Flex>
+                    <SpacesFooterComponent />
+                </Flex >}
+        </SpaceContext.Provider>
+
+
     );
 }
 

@@ -1,10 +1,13 @@
-import { ChildDataNodeType, LeafDataNode, NewTabNode, NodeType } from '../Types';
+import { ChildDataNodeType, LeafDataNode } from '../Types';
 import { NodeRendererProps } from 'react-arborist';
-import { Divider, Dropdown, Flex, Typography, notification } from 'antd';
-import { FileOutlined, PlusOutlined } from '@ant-design/icons';
+import { Dropdown, Flex, Typography, notification } from 'antd';
+import { FileOutlined } from '@ant-design/icons';
 import { FolderClose, FolderOpen } from '../../common/Icons';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import { ItemType } from 'antd/es/menu/interface';
+import { SpaceContext } from '../SpaceContextUtils';
+import { Utils } from '../Utils';
+import Icon from '@ant-design/icons/lib/components/Icon';
 
 const { Text } = Typography;
 
@@ -12,6 +15,8 @@ type Props = NodeRendererProps<ChildDataNodeType>;
 
 export default function SpaceContentTreeNode({ node: currentNode, style, dragHandle }: Props) {
     const [notificationApi, contextHolder] = notification.useNotification();
+
+    const spaceContext = useContext(SpaceContext);
 
     const onCopyLinks = (items: string[]) => {
         items = (items ?? []).filter((value) => value.length > 0)
@@ -29,9 +34,6 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
         const menuItems: ItemType[] = [];
 
         const selectedNodesValues = Object.values(currentNode.tree.selectedNodes);
-        const isContextMenuNodeInSelectedNodes = selectedNodesValues.some((selectedNode) => selectedNode.id.toString() === currentNode.id.toString());
-        const isLeaf = isContextMenuNodeInSelectedNodes ? false : currentNode.isLeaf;
-        const isFolder = isContextMenuNodeInSelectedNodes ? false : !currentNode?.isLeaf;
 
         if (currentNode.isLeaf && (selectedNodesValues.length === 0 || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id))) {
             // Single leaf node
@@ -55,24 +57,29 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                 }
             },
             ]);
-        } else if (currentNode.isInternal && selectedNodesValues.length === 0) {
+        } else if (currentNode.isInternal && (selectedNodesValues.length === 0) || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id)) {
             menuItems.push(...[
                 {
                     label: 'Add Current Tab',
                     key: 'context_menu_single_folder_add_current_tab',
-                    onClick: () => {
-                        console.log("adding current tab");
+                    onClick: (event: any) => {
+                        if (currentNode.isClosed) {
+                            currentNode.open();
+                        }
+                        spaceContext.addCurrentTab(currentNode.id);
+                        event.domEvent.stopPropagation();
                     }
                 },
                 {
                     label: 'New Nested Folder',
                     key: 'context_menu_single_folder_new_nested_folder',
                     disabled: currentNode.level > 3,
-                    onClick: () => {
-                        currentNode.tree.create({
-                            type: 'internal',
-                            parentId: currentNode.id
-                        });
+                    onClick: (event: any) => {
+                        if (currentNode.isClosed) {
+                            currentNode.open();
+                        }
+                        spaceContext.onChildFolderNodeCreate(Utils.NewFolder(), currentNode.id);
+                        event.domEvent.stopPropagation();
                     }
                 }, {
                     label: 'Rename...',
@@ -123,7 +130,6 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     label: 'Delete',
                     key: 'context_menu_multiple_leaf_and_folder_delete',
                     onClick: (event: any) => {
-                        console.log(currentNode.tree.selectedIds);
                         currentNode.tree.delete([...currentNode.tree.selectedIds]);
                         event.domEvent.stopPropagation();
                     }
@@ -163,7 +169,11 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                             {
                                 currentNode.isLeaf ? (
                                     <>
-                                        <FileOutlined height='2em' width='2em' />
+                                        {
+                                            (currentNode.data as LeafDataNode).iconSrc ?
+                                                <Icon height="2em" width="2em" component={() => <img height="100%" width="100%" src={(currentNode.data as LeafDataNode).iconSrc} />} /> :
+                                                <FileOutlined height='2em' width='2em' />
+                                        }
                                     </>
                                 ) : (
                                     <>
@@ -173,19 +183,27 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                     </>
                                 )
                             }
-                            <Text strong editable={{
-                                editing: currentNode.isEditing,
-                                enterIcon: null,
-                                maxLength: 30,
-                                triggerType: ['text'],
-                                onChange: (newName: string) => {
-                                    if (newName.length > 0) {
-                                        currentNode.submit(newName);
-                                    }
-                                },
-                            }}
+                            <Text
+                                strong
+                                ellipsis={true}
+                                editable={{
+                                    editing: true, // CHange
+                                    enterIcon: null,
+                                    maxLength: 30,
+                                    tooltip: true,
+                                    triggerType: ['text'],
+                                    onChange: (newName: string) => {
+                                        if (newName.length > 0) {
+                                            currentNode.submit(newName);
+                                        }
+                                    },
+                                }}
                                 onClick={(event) => {
-                                    currentNode.edit();
+                                    if (currentNode.isSelected) {
+                                        currentNode.edit();
+                                    } else {
+                                        currentNode.select();
+                                    }
                                     event.stopPropagation();
                                 }}
                             >
