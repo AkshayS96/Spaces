@@ -32,7 +32,6 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
         const isContextMenuNodeInSelectedNodes = selectedNodesValues.some((selectedNode) => selectedNode.id.toString() === currentNode.id.toString());
         const isLeaf = isContextMenuNodeInSelectedNodes ? false : currentNode.isLeaf;
         const isFolder = isContextMenuNodeInSelectedNodes ? false : !currentNode?.isLeaf;
-        const isMultileaf = (!isLeaf && !isFolder && selectedNodesValues.every((node) => node.isLeaf));
 
         if (currentNode.isLeaf && (selectedNodesValues.length === 0 || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id))) {
             // Single leaf node
@@ -55,39 +54,42 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     event.domEvent.stopPropagation();
                 }
             },
-                // {
-                //     label: 'Duplicate',
-                //     key: 'context_menu_single_leaf_duplicate',
-                // }
             ]);
         } else if (currentNode.isInternal && selectedNodesValues.length === 0) {
-            //TODO: Hide nested folder after 5 child folders
-            menuItems.push(...[{
-                label: 'New Nested Folder',
-                key: 'context_menu_single_folder_new_nested_folder',
-                disabled: currentNode.level > 5,
-                onClick: () => {
-                    currentNode.tree.create({
-                        type: 'internal',
-                        parentId: currentNode.id
-                    });
-                }
-            }, {
-                label: 'Rename...',
-                key: 'context_menu_single_folder_rename',
-                onClick: (event: any) => {
-                    currentNode.edit();
-                    event.domEvent.stopPropagation();
-                }
-            },
-            {
-                label: 'Delete',
-                key: 'context_menu_single_folder_delete',
-                onClick: (event: any) => {
-                    currentNode.tree.delete(currentNode.id);
-                    event.domEvent.stopPropagation();
-                }
-            }]);
+            menuItems.push(...[
+                {
+                    label: 'Add Current Tab',
+                    key: 'context_menu_single_folder_add_current_tab',
+                    onClick: () => {
+                        console.log("adding current tab");
+                    }
+                },
+                {
+                    label: 'New Nested Folder',
+                    key: 'context_menu_single_folder_new_nested_folder',
+                    disabled: currentNode.level > 3,
+                    onClick: () => {
+                        currentNode.tree.create({
+                            type: 'internal',
+                            parentId: currentNode.id
+                        });
+                    }
+                }, {
+                    label: 'Rename...',
+                    key: 'context_menu_single_folder_rename',
+                    onClick: (event: any) => {
+                        currentNode.edit();
+                        event.domEvent.stopPropagation();
+                    }
+                },
+                {
+                    label: 'Delete',
+                    key: 'context_menu_single_folder_delete',
+                    onClick: (event: any) => {
+                        currentNode.tree.delete(currentNode.id);
+                        event.domEvent.stopPropagation();
+                    }
+                }]);
         } else if (currentNode.isLeaf && selectedNodesValues.every((selectedNode) => selectedNode.isLeaf)) {
             menuItems.push(...[
                 {

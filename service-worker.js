@@ -1,12 +1,6 @@
 
-// Allows users to open the side panel by click on context menu item on the action toolbar icon
-chrome.runtime.onInstalled.addListener(() => {
-    //TODO: Create a multi menu item based context menu for all folders to directly save into folder
-    chrome.contextMenus.create({
-        id: 'saveToSpaces',
-        title: 'Save to Spaces',
-        contexts: ['all']
-    });
+chrome.runtime.onInstalled.addListener(async () => {
+    // Add dynamic context menu here
 });
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "saveToSpaces") {
@@ -30,11 +24,4 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
             chrome.storage.local.set({ "sidePanelState": "OPEN" });
         }
     }
-});
-
-
-const channel = new BroadcastChannel("space-sw-messages");
-channel.addEventListener('message', event => {
-    console.log(event);
-    channel.postMessage("message_from_sw");
 });

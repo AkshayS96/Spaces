@@ -28,26 +28,23 @@ function Spaces() {
 
     useEffect(() => {
         const setupSpaces = async () => {
-            const spacesIdsStr = window.localStorage.getItem("spaces-extension-spaceIds"); // Change with chrome api later on
-            if (spacesIdsStr) {
-                const spaceIds: Array<string> = JSON.parse(spacesIdsStr);
-                if (spaceIds) {
-                    const spacesLocal: { id: string, name: string }[] = []
-                    spaceIds.forEach((spaceId) => {
-                        const spaceDataStr = window.localStorage.getItem(`spaces-extension-space-${spaceId}`);
-                        if (spaceDataStr) {
-                            const spaceData = JSON.parse(spaceDataStr);
-                            spacesLocal.push({
-                                id: spaceId,
-                                name: spaceData.name,
-                            });
-                        }
-                    });
-
-                    setSpaces(spacesLocal);
-                }
+            const storedItems = await chrome.storage.local.get("spaces-extension-spaceIds");
+            const spaceIds: Array<string> = storedItems["spaces-extension-spaceIds"];
+            if (spaceIds) {
+                const spacesLocal: Array<{ id: string, name: string }> = [];
+                const allSpaceData = await chrome.storage.local.get(spaceIds.map((spaceId) => `spaces-extension-space-${spaceId}`));
+                spaceIds.forEach((spaceId) => {
+                    const storedSpaceData = allSpaceData[`spaces-extension-space-${spaceId}`];
+                    if (storedSpaceData) {
+                        spacesLocal.push({
+                            id: spaceId,
+                            name: storedSpaceData.name,
+                        });
+                    }
+                });
+                setSpaces(spacesLocal);
+                setisLoading(false);
             }
-            setisLoading(false);
         }
         setupSpaces();
     }, []);
@@ -72,11 +69,15 @@ function Spaces() {
         }
     }, [spaces]);
 
+    useEffect(() => {
+        chrome.storage.local.set({ "spaces-current-space": spaces[currentSpace]?.id });
+    }, [currentSpace])
+
     const onCreateSpace = (name: string) => {
         const newSpace = { id: Utils.getUniqueId(), name };
         const newSpaces = [...spaces.slice(0, currentSpace + 1), newSpace, ...spaces.slice(currentSpace + 1)];
-        window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces.map((space) => space.id))); // Change with chrome api later on
-        window.localStorage.setItem(`spaces-extension-space-${newSpace.id}`, JSON.stringify({ ...newSpace, children: [] }));
+        chrome.storage.local.set({ "spaces-extension-spaceIds": newSpaces.map((space) => space.id) });
+        chrome.storage.local.set({ [`spaces-extension-space-${newSpace.id}`]: { ...newSpace, children: [] } });
         setSpaces(newSpaces);
         if (swiper) {
             swiper.slideNext();
@@ -93,8 +94,8 @@ function Spaces() {
         const newSpaces = spaces.filter((space: { id: string, name: string }) => {
             return space.id !== spaceIdToDelete;
         });
-        window.localStorage.setItem("spaces-extension-spaceIds", JSON.stringify(newSpaces)); // Change with chrome api later on
-        window.localStorage.removeItem(`spaces-extension-space-${spaceIdToDelete}`);
+        chrome.storage.local.set({ "spaces-extension-spaceIds": newSpaces });
+        chrome.storage.local.remove(`spaces-extension-space-${spaceIdToDelete}`);
         setSpaces(newSpaces);
     };
 

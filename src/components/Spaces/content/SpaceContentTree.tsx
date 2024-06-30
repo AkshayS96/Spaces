@@ -33,7 +33,6 @@ export default function SpaceContentTree(props: Props) {
         }) => {
         props.onDelete(args.ids)
     };
-    // const onCreate = (args: any) => { console.log(args); return {} };
 
     const onTreeNodeMove = (args: {
         dragIds: string[];

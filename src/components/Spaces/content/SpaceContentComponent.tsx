@@ -11,7 +11,6 @@ import "./SpaceContentComponent.css"
 type Props = Readonly<{
     space: SpaceDataNode,
     onDataChange: (newSpaceData: SpaceDataNode) => void,
-    onNewTab: () => void,
 }>;
 
 function SpaceContentComponent(props: Props) {
@@ -150,10 +149,6 @@ function SpaceContentComponent(props: Props) {
     return (
         <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
             <SpaceContentTree data={[...props.space.children]} onMove={onMove} onRename={onRename} onDelete={onDelete} onCreate={onCreate} />
-            <Divider />
-            <Flex align='center' justify='flex-start' gap={12} style={{ marginLeft: 6, padding: 12, cursor: 'pointer' }} className='space-content-component-new-tab-button-holder'>
-                <PlusOutlined /> <Typography>New Tab</Typography>
-            </Flex>
         </Flex>
     )
 
