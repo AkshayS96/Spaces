@@ -24,6 +24,7 @@ export type SpaceDataNode = {
     name: string,
     type: NodeType
     children: Array<ChildDataNodeType>
+    themeColor?: string,
 };
 
 export type ChildDataNodeType = LeafDataNode | FolderDataNode

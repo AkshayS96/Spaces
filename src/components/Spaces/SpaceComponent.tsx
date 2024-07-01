@@ -7,6 +7,7 @@ import { SpaceContext, useSpaceData } from './SpaceContextUtils';
 import SpaceContentTree from './content/SpaceContentTree';
 
 import './SpaceComponent.css';
+import { useEffect } from 'react';
 
 type Props = Readonly<{
     spaceId: string,
@@ -15,9 +16,9 @@ type Props = Readonly<{
 }>;
 
 function SpaceComponent(props: Props) {
-    const { spaceData,
+    const {
+        spaceData,
         spaceLoading,
-        themeColor,
         searchStr,
         onSetThemeColor,
         onSpaceNameChange,
@@ -31,10 +32,13 @@ function SpaceComponent(props: Props) {
         addCurrentTab,
     } = useSpaceData(props.spaceId, props.onDelete, props.onNewSpace);
 
+    useEffect(() => {
+        document.body.style.background = spaceData?.themeColor ?? '';  // This is just a hack as it is really hard to set color on body
+    }, [spaceData])
+
     return (
         <SpaceContext.Provider value={{
             spaceData,
-            themeColor,
             searchStr,
             onSetThemeColor,
             onSpaceNameChange,

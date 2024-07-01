@@ -210,7 +210,15 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                         gap={8}
                         align='center'
                         justify='space-between'
-                        style={{ width: '100%', padding: 8, paddingLeft: 8, backgroundColor: (currentNode.isSelected ? 'rgba(0, 0, 0, 0.04)' : 'transparent'), borderRadius: '10px' }} className='space-content-component-tree-node-title'
+                        style={{
+                            width: '100%',
+                            padding: 8,
+                            paddingLeft: 8,
+                            backgroundColor: (currentNode.isSelected ? (currentNode.isInternal ? 'rgba(0, 0, 0, 0.04)' : 'white') : 'transparent'),
+                            boxShadow: (currentNode.isSelected && currentNode.isLeaf) ? '1px 1px 1px rgba(0, 0, 0, 0.1)' : '0px 0px 0px rgba(0, 0, 0, 0.1)',
+                            borderRadius: '10px'
+                        }}
+                        className='space-content-component-tree-node-title'
                     >
                         {<>
                             {

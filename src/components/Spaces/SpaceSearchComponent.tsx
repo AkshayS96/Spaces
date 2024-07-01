@@ -13,10 +13,7 @@ function SpaceSearchComponent(props: Props) {
 
     return <Input
         id='space-search-tab'
-        color={spaceContext.themeColor}
-        style={{
-
-        }}
+        color={spaceContext.spaceData?.themeColor}
         variant="filled"
         placeholder='Search tabs' onChange={(event) => {
             props.onSearchChange(event.target.value);

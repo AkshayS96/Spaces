@@ -5,13 +5,15 @@ import { Utils } from './Utils';
 export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: string) => void, onNewSpaceParent: () => void) => {
     const [spaceData, setSpaceData] = useState<SpaceDataNode>();
     const [spaceLoading, setSpaceLoading] = useState<boolean>(true);
-    const [themeColor, setThemeColor] = useState<string>("#1677ff");
     const [searchStr, setSearchStr] = useState<string>("");
 
     useEffect(() => {
         chrome.storage.local.get(`spaces-extension-space-${spaceId}`, (items: { [key: string]: any }) => {
             const storedSpaceData = items[`spaces-extension-space-${spaceId}`]
             if (storedSpaceData) {
+                if (!storedSpaceData.themeColor) {
+                    storedSpaceData.themeColor = "#E9A997";
+                }
                 setSpaceData(storedSpaceData);
                 setSpaceLoading(false);
             }
@@ -170,8 +172,7 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
     }
 
     const onSetThemeColor = (newColor: string) => {
-        document.body.style.background = newColor; // This is just a hack as it is really hard to set color on body
-        setThemeColor(newColor);
+        onSpaceDataChange({ ...spaceData!, themeColor: newColor });
     }
 
     const onSearchChange = (searchStr: string) => {
@@ -180,7 +181,6 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
 
     return {
         spaceData,
-        themeColor,
         spaceLoading,
         searchStr,
         onSetThemeColor,
@@ -198,7 +198,6 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
 
 export const SpaceContext = createContext<{
     spaceData?: SpaceDataNode,
-    themeColor?: string,
     searchStr?: string,
     onSetThemeColor: (newColor: string) => void,
     onSpaceNameChange: (newName: string) => void,

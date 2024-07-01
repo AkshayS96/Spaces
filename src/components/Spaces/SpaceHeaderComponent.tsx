@@ -18,7 +18,7 @@ function SpaceHeaderComponent() {
         {
             label: (
                 <ColorPicker
-                    defaultValue={spaceContext.themeColor}
+                    defaultValue={spaceContext.spaceData?.themeColor}
                     showText={(color) => <span>Select theme color</span>}
                     onChange={(value: Color) => spaceContext.onSetThemeColor(value.toHexString())} />
             ),
@@ -79,9 +79,9 @@ function SpaceHeaderComponent() {
                         <Button
                             type='text'
                             style={{
-                                backgroundColor: spaceContext.themeColor,
+                                backgroundColor: spaceContext.spaceData?.themeColor,
                                 visibility: hovered ? undefined : 'hidden',
-                            }} icon={<EllipsisOutlined color={spaceContext.themeColor} size={40} />} />
+                            }} icon={<EllipsisOutlined color={spaceContext.spaceData?.themeColor} type='strong' size={40} />} />
                     </Dropdown>
                 </Flex>
             </Flex>
