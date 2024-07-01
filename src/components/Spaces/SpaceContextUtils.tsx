@@ -41,7 +41,7 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
                 return null;
             }
 
-            if (node.type === NodeType.Leaf || node.type === NodeType.NewTab) {
+            if (node.type === NodeType.Leaf) {
                 return node;
             }
 
@@ -161,6 +161,7 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
     const addCurrentTab = (parentId: string) => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs?: chrome.tabs.Tab[]) => {
             if (tabs?.length) {
+                const tab = tabs[0];
                 onChildFolderNodeCreate(Utils.Leaf(tabs[0].title ?? "New Tab", tabs[0].url, tabs[0].favIconUrl), parentId);
             }
         });

@@ -1,9 +1,9 @@
-import { ChildDataNodeType, LeafDataNode } from '../Types';
+import { ChildDataNodeType, LeafDataNode, NodeType } from '../Types';
 import { NodeRendererProps } from 'react-arborist';
 import { Button, Dropdown, Flex, Typography, notification } from 'antd';
-import { FileOutlined } from '@ant-design/icons';
+import { CloseOutlined, FileOutlined } from '@ant-design/icons';
 import { FolderClose, FolderOpen, WebsiteIcon } from '../../common/Icons';
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { ItemType } from 'antd/es/menu/interface';
 import { SpaceContext } from '../SpaceContextUtils';
 import { Utils } from '../Utils';
@@ -15,6 +15,8 @@ type Props = NodeRendererProps<ChildDataNodeType>;
 
 export default function SpaceContentTreeNode({ node: currentNode, style, dragHandle }: Props) {
     const [notificationApi, contextHolder] = notification.useNotification();
+
+    const [hovered, setHovered] = useState<boolean>(false);
 
     const spaceContext = useContext(SpaceContext);
 
@@ -37,25 +39,36 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
 
         if (currentNode.isLeaf && (selectedNodesValues.length === 0 || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id))) {
             // Single leaf node
-            menuItems.push(...[{
-                label: 'Copy Link',
-                key: 'context_menu_single_leaf_copy_link',
-                onClick: () => { onCopyLinks([(currentNode.data as LeafDataNode).url ?? '']) }
-            }, {
-                label: 'Rename...',
-                key: 'context_menu_single_leaf_rename',
-                onClick: (event: any) => {
-                    currentNode.edit();
-                    event.domEvent.stopPropagation();
-                }
-            }, {
-                label: 'Delete',
-                key: 'context_menu_single_leaf_delete',
-                onClick: (event: any) => {
-                    currentNode.tree.delete(currentNode.id);
-                    event.domEvent.stopPropagation();
-                }
-            },
+            menuItems.push(...[
+                {
+                    label: 'Open in a New Tab',
+                    key: 'context_menu_single_leaf_open_in_a_new_tab',
+                    onClick: (event: any) => {
+                        chrome.tabs.create({
+                            url: (currentNode.data as LeafDataNode).url,
+                        });
+                        event.stopPropagation();
+                    }
+                },
+                {
+                    label: 'Copy Link',
+                    key: 'context_menu_single_leaf_copy_link',
+                    onClick: (event: any) => { onCopyLinks([(currentNode.data as LeafDataNode).url ?? '']); event.stopPropagation() }
+                }, {
+                    label: 'Rename...',
+                    key: 'context_menu_single_leaf_rename',
+                    onClick: (event: any) => {
+                        currentNode.edit();
+                        event.domEvent.stopPropagation();
+                    }
+                }, {
+                    label: 'Delete',
+                    key: 'context_menu_single_leaf_delete',
+                    onClick: (event: any) => {
+                        currentNode.tree.delete(currentNode.id);
+                        event.domEvent.stopPropagation();
+                    }
+                },
             ]);
         } else if (currentNode.isInternal && (selectedNodesValues.length === 0) || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id)) {
             menuItems.push(...[
@@ -142,20 +155,53 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
     return (
         <>
             {contextHolder}
-            <Flex ref={dragHandle} style={style} onClick={(event) => {
-                if (event.metaKey) {
-                    currentNode.selectMulti();
-                    event.stopPropagation();
-                    return;
-                }
+            <Flex
+                ref={dragHandle}
+                justify='space-between'
+                align='center'
+                style={{ ...style }}
+                onClick={(event) => {
+                    if (currentNode.isEditing) {
+                        return;
+                    }
+                    if (currentNode.data.type === NodeType.Leaf) {
+                        chrome.tabs.query({ currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
+                            const existingTab = tabs.filter((tab) => {
+                                return tab.url === (currentNode.data as LeafDataNode).url;
+                            });
 
-                if (currentNode.isInternal) {
-                    currentNode.toggle();
-                    currentNode.deselect();
-                    currentNode.tree.deselectAll();
-                    event.stopPropagation();
+                            if (existingTab.length) {
+                                chrome.tabs.update(existingTab[0].id!, {
+                                    active: true,
+                                });
+                            } else {
+                                chrome.tabs.create({
+                                    url: (currentNode.data as LeafDataNode).url,
+                                });
+                            }
+                        });
+                    }
+
+                    if (event.metaKey) {
+                        currentNode.selectMulti();
+                        event.stopPropagation();
+                        return;
+                    }
+
+                    if (currentNode.isInternal) {
+                        currentNode.toggle();
+                        currentNode.deselect();
+                        currentNode.tree.deselectAll();
+                        event.stopPropagation();
+                    }
+                }}
+                onMouseEnter={() => {
+                    setHovered(true);
                 }
-            }}
+                }
+                onMouseLeave={() => {
+                    setHovered(false);
+                }}
             >
                 <Dropdown placement='bottom' trigger={['contextMenu']} arrow={true} menu={{
                     items: treeNodeDropdownMenuItems()
@@ -163,7 +209,8 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     <Flex
                         gap={8}
                         align='center'
-                        style={{ width: '100%', padding: 8, backgroundColor: (currentNode.isSelected ? 'rgba(0, 0, 0, 0.04)' : 'transparent') }} className='space-content-component-tree-node-title'
+                        justify='space-between'
+                        style={{ width: '100%', padding: 8, paddingLeft: 8, backgroundColor: (currentNode.isSelected ? 'rgba(0, 0, 0, 0.04)' : 'transparent'), borderRadius: '10px' }} className='space-content-component-tree-node-title'
                     >
                         {<>
                             {
@@ -190,11 +237,11 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                         title: currentNode.data.name
                                     },
                                 }}
-                                style={
-                                    {
-                                        textOverflow: 'ellipsis',
-                                    }
-                                }
+                                style={{
+                                    textOverflow: 'ellipsis',
+                                    width: '100%',
+                                    whiteSpace: 'wrap',
+                                }}
                                 editable={{
                                     editing: currentNode.isEditing,
                                     enterIcon: null,
@@ -207,18 +254,22 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                     },
                                 }}
                                 onClick={(event) => {
-                                    if (currentNode.isSelected) {
+                                    if (currentNode.isSelected && currentNode.tree.selectedNodes.length === 1) {
                                         currentNode.edit();
-                                    } else {
-                                        currentNode.select();
                                     }
-                                    event.stopPropagation();
                                 }}
                             >
                                 {currentNode.data.name?.toString()}
                             </Text>
-                            {/* Add a close button here */}
                         </>
+                        }
+                        {currentNode.isLeaf ?
+                            <Button type='text' size="small" icon={<CloseOutlined />} style={{
+                                alignSelf: 'flex-end',
+                                visibility: hovered ? undefined : 'hidden',
+                            }} onClick={() => {
+                                spaceContext.onChildNodeDelete([currentNode.id]);
+                            }}></Button> : null
                         }
                     </Flex >
                 </Dropdown >

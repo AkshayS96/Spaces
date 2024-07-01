@@ -48,18 +48,6 @@ export default function SpaceContentTree() {
         }
     }
 
-    const onTreeNodeCreate = (args: {
-        parentId: string | null,
-        parentNode: NodeApi<ChildDataNodeType> | null,
-        index: number,
-        type: "internal" | "leaf"
-    }): (IdObj | null) => {
-        // if (args.type ==='leaf') {
-        //     return { id: spaceContext.onChildFolderNodeCreate(args.parentId ?? undefined, args.index) };
-        // }
-        return { id: spaceContext.onChildFolderNodeCreate(Utils.NewFolder(), args.parentId ?? undefined, args.index) };
-    }
-
     return <Tree
         className="space-content-tree"
         ref={treeRef}
@@ -70,7 +58,6 @@ export default function SpaceContentTree() {
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}
-        onCreate={onTreeNodeCreate}
     >
         {SpaceContentTreeNode}
     </Tree>

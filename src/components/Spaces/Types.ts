@@ -1,7 +1,6 @@
 export enum NodeType {
     Leaf,
     Folder,
-    NewTab,
     Space,
 };
 
