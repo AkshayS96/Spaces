@@ -17,9 +17,13 @@ type Props = Readonly<{
 function SpaceComponent(props: Props) {
     const { spaceData,
         spaceLoading,
+        themeColor,
+        searchStr,
+        onSetThemeColor,
         onSpaceNameChange,
         onSpaceDelete,
         onNewSpace,
+        onSearchChange,
         onChildNodeMove,
         onChildNodeRename,
         onChildFolderNodeCreate,
@@ -30,9 +34,13 @@ function SpaceComponent(props: Props) {
     return (
         <SpaceContext.Provider value={{
             spaceData,
+            themeColor,
+            searchStr,
+            onSetThemeColor,
             onSpaceNameChange,
             onSpaceDelete,
             onNewSpace,
+            onSearchChange,
             onChildNodeMove,
             onChildNodeRename,
             onChildFolderNodeCreate,
@@ -43,7 +51,7 @@ function SpaceComponent(props: Props) {
                 <Spin indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} />
             </Flex> :
                 <Flex vertical justify='space-between' align='space-between' style={{ height: '100%' }} gap={16}>
-                    <SpaceSearchComponent />
+                    <SpaceSearchComponent onSearchChange={onSearchChange} />
                     <SpaceHeaderComponent />
                     <Flex vertical style={{ height: '100%', width: '100%', overflowY: 'scroll' }}>
                         <SpaceContentTree />

@@ -5,6 +5,8 @@ import { Utils } from './Utils';
 export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: string) => void, onNewSpaceParent: () => void) => {
     const [spaceData, setSpaceData] = useState<SpaceDataNode>();
     const [spaceLoading, setSpaceLoading] = useState<boolean>(true);
+    const [themeColor, setThemeColor] = useState<string>("#1677ff");
+    const [searchStr, setSearchStr] = useState<string>("");
 
     useEffect(() => {
         chrome.storage.local.get(`spaces-extension-space-${spaceId}`, (items: { [key: string]: any }) => {
@@ -167,12 +169,25 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
         });
     }
 
+    const onSetThemeColor = (newColor: string) => {
+        document.body.style.background = newColor; // This is just a hack as it is really hard to set color on body
+        setThemeColor(newColor);
+    }
+
+    const onSearchChange = (searchStr: string) => {
+        setSearchStr(searchStr);
+    }
+
     return {
         spaceData,
+        themeColor,
         spaceLoading,
+        searchStr,
+        onSetThemeColor,
         onSpaceNameChange,
         onSpaceDelete,
         onNewSpace,
+        onSearchChange,
         onChildNodeMove,
         onChildNodeRename,
         onChildFolderNodeCreate,
@@ -183,9 +198,13 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
 
 export const SpaceContext = createContext<{
     spaceData?: SpaceDataNode,
+    themeColor?: string,
+    searchStr?: string,
+    onSetThemeColor: (newColor: string) => void,
     onSpaceNameChange: (newName: string) => void,
     onSpaceDelete: () => void,
     onNewSpace: () => void,
+    onSearchChange: (searchStr: string) => void,
     onChildNodeMove: (dragNodeIds: string[], dragNodesData: ChildDataNodeType[], parentId: string | null, index: number) => void,
     onChildNodeRename: (nodeId: string, newName: string) => void,
     onChildFolderNodeCreate: (newChild: ChildDataNodeType, parentNodeId?: string, index?: number) => string,
@@ -193,9 +212,11 @@ export const SpaceContext = createContext<{
     addCurrentTab: (parentId: string) => void,
 }>(
     {
+        onSetThemeColor: (_newColor: string) => { },
         onSpaceNameChange: (_newName: string) => { },
         onSpaceDelete: () => { },
         onNewSpace: () => { },
+        onSearchChange: (_searchStr: string) => { },
         onChildNodeMove: (_dragNodeIds: string[], _dragNodesData: ChildDataNodeType[], _parentId: string | null, _index: number) => { },
         onChildNodeRename: (_nodeId: string, _newName: string) => { },
         onChildFolderNodeCreate: (_newChild: ChildDataNodeType, _parentNodeId?: string, _index?: number) => { return "" },

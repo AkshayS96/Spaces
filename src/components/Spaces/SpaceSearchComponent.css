@@ -1,0 +1,15 @@
+#space-search-tab {
+    background-color: rgba(0, 0, 0, 0.04) !important
+}
+
+#space-search-tab:focus {
+    background-color: rgba(0, 0, 0, 0.04) !important
+}
+
+#space-search-tab:hover {
+    background-color: rgba(0, 0, 0, 0.04) !important
+}
+
+#space-search-tab:focus-within {
+    background-color: rgba(0, 0, 0, 0.04) !important
+}

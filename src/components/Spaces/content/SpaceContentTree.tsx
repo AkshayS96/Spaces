@@ -58,6 +58,7 @@ export default function SpaceContentTree() {
         onMove={onTreeNodeMove}
         onRename={onTreeNodeRename}
         onDelete={onTreeNodeDelete}
+        searchTerm={spaceContext.searchStr}
     >
         {SpaceContentTreeNode}
     </Tree>

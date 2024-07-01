@@ -1,9 +1,26 @@
 import { Input } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { SpaceContext } from './SpaceContextUtils';
 
+import './SpaceSearchComponent.css'
 
-function SpaceSearchComponent() {
-    return <Input variant="outlined" placeholder='Search tabs' />
+type Props = Readonly<{
+    onSearchChange: (searchStr: string) => void
+}>;
+
+function SpaceSearchComponent(props: Props) {
+    const spaceContext = useContext(SpaceContext);
+
+    return <Input
+        id='space-search-tab'
+        color={spaceContext.themeColor}
+        style={{
+
+        }}
+        variant="filled"
+        placeholder='Search tabs' onChange={(event) => {
+            props.onSearchChange(event.target.value);
+        }} />
 }
 
 export default SpaceSearchComponent;
