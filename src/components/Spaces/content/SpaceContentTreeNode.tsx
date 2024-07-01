@@ -234,7 +234,8 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                 strong
                                 ellipsis={{
                                     tooltip: {
-                                        title: currentNode.data.name
+                                        title: currentNode.data.name,
+                                        showArrow: false,
                                     },
                                 }}
                                 style={{
