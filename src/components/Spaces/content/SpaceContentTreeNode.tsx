@@ -47,7 +47,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                         chrome.tabs.create({
                             url: (currentNode.data as LeafDataNode).url,
                         });
-                        event.stopPropagation();
+                        event.domEvent.stopPropagation();
                     }
                 },
                 {
@@ -117,7 +117,6 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     key: 'context_menu_multiple_leaf_copy_links',
                     // Fix contextMenuNode copy as well
                     onClick: () => {
-                        console.log(selectedNodesValues);
                         onCopyLinks([(currentNode.data as LeafDataNode).url ?? '', ...selectedNodesValues
                             .filter((node) => node.data.id !== currentNode.id)
                             .map((node) => {
