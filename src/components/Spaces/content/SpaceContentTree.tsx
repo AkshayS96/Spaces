@@ -1,13 +1,10 @@
-import { useContext, useRef } from "react"
+import { useContext, useEffect, useRef } from "react"
 import { NodeApi, Tree } from "react-arborist";
 import { NodeType, ChildDataNodeType } from "../Types";
 import SpaceContentTreeNode from "./SpaceContentTreeNode";
 
-import { IdObj } from "react-arborist/dist/module/types/utils";
-
 import './SpaceContentTree.css';
 import { SpaceContext } from "../SpaceContextUtils";
-import { Utils } from "../Utils";
 
 export default function SpaceContentTree() {
     const treeRef = useRef(null);

@@ -3,7 +3,7 @@ import { NodeRendererProps } from 'react-arborist';
 import { Button, Dropdown, Flex, Typography, notification } from 'antd';
 import { CloseOutlined, FileOutlined } from '@ant-design/icons';
 import { FolderClose, FolderOpen, WebsiteIcon } from '../../common/Icons';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { ItemType } from 'antd/es/menu/interface';
 import { SpaceContext } from '../SpaceContextUtils';
 import { Utils } from '../Utils';
@@ -19,6 +19,21 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
     const [hovered, setHovered] = useState<boolean>(false);
 
     const spaceContext = useContext(SpaceContext);
+
+    useEffect(() => {
+        const onTabChange = async (activeInfo: chrome.tabs.TabActiveInfo) => {
+            const tabData = await chrome.tabs.get(activeInfo.tabId);
+            if (currentNode.data.type === NodeType.Leaf && tabData.url !== (currentNode.data as LeafDataNode).url) {
+                currentNode.deselect();
+            }
+        };
+
+        chrome.tabs.onActivated.addListener(onTabChange);
+
+        return () => {
+            chrome.tabs.onActivated.removeListener(onTabChange);
+        };
+    }, [currentNode]);
 
     const onCopyLinks = (items: string[]) => {
         items = (items ?? []).filter((value) => value.length > 0)
@@ -70,6 +85,28 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     }
                 },
             ]);
+        } else if (currentNode.isLeaf && selectedNodesValues.every((selectedNode) => selectedNode.isLeaf)) {
+            menuItems.push(...[
+                {
+                    label: 'Copy Links',
+                    key: 'context_menu_multiple_leaf_copy_links',
+                    // Fix contextMenuNode copy as well
+                    onClick: () => {
+                        onCopyLinks([(currentNode.data as LeafDataNode).url ?? '', ...selectedNodesValues
+                            .filter((node) => node.data.id !== currentNode.id)
+                            .map((node) => {
+                                return (node.data as LeafDataNode).url ?? '';
+                            })])
+                    }
+                },
+                {
+                    label: 'Delete',
+                    key: 'context_menu_multiple_leaf_delete',
+                    onClick: (event: any) => {
+                        currentNode.tree.delete([...currentNode.tree.selectedIds]);
+                        event.domEvent.stopPropagation();
+                    }
+                }]);
         } else if (currentNode.isInternal && (selectedNodesValues.length === 0) || selectedNodesValues.every((selectedNode) => selectedNode.id === currentNode.id)) {
             menuItems.push(...[
                 {
@@ -110,29 +147,43 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                         event.domEvent.stopPropagation();
                     }
                 }]);
-        } else if (currentNode.isLeaf && selectedNodesValues.every((selectedNode) => selectedNode.isLeaf)) {
+        } else if (currentNode.isInternal && selectedNodesValues.every((selectedNode) => selectedNode.isLeaf)) {
             menuItems.push(...[
                 {
-                    label: 'Copy Links',
-                    key: 'context_menu_multiple_leaf_copy_links',
-                    // Fix contextMenuNode copy as well
-                    onClick: () => {
-                        onCopyLinks([(currentNode.data as LeafDataNode).url ?? '', ...selectedNodesValues
-                            .filter((node) => node.data.id !== currentNode.id)
-                            .map((node) => {
-                                return (node.data as LeafDataNode).url ?? '';
-                            })])
+                    label: 'Add Current Tab',
+                    key: 'context_menu_single_folder_add_current_tab',
+                    onClick: (event: any) => {
+                        if (currentNode.isClosed) {
+                            currentNode.open();
+                        }
+                        spaceContext.addCurrentTab(currentNode.id);
+                        event.domEvent.stopPropagation();
                     }
                 },
-                // {
-                //     label: `New Folder with ${selectedNodesValues.length} Items`,
-                //     key: 'context_menu_multiple_leaf_new_folder_with_items'
-                // },
+                {
+                    label: 'New Nested Folder',
+                    key: 'context_menu_single_folder_new_nested_folder',
+                    disabled: currentNode.level > 3,
+                    onClick: (event: any) => {
+                        if (currentNode.isClosed) {
+                            currentNode.open();
+                        }
+                        spaceContext.onChildFolderNodeCreate(Utils.NewFolder(), currentNode.id);
+                        event.domEvent.stopPropagation();
+                    }
+                }, {
+                    label: 'Rename...',
+                    key: 'context_menu_single_folder_rename',
+                    onClick: (event: any) => {
+                        currentNode.edit();
+                        event.domEvent.stopPropagation();
+                    }
+                },
                 {
                     label: 'Delete',
-                    key: 'context_menu_multiple_leaf_delete',
+                    key: 'context_menu_single_folder_delete',
                     onClick: (event: any) => {
-                        currentNode.tree.delete([...currentNode.tree.selectedIds]);
+                        currentNode.tree.delete(currentNode.id);
                         event.domEvent.stopPropagation();
                     }
                 }]);
@@ -163,7 +214,7 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                     if (currentNode.isEditing) {
                         return;
                     }
-                    if (currentNode.data.type === NodeType.Leaf) {
+                    if (!event.metaKey && currentNode.data.type === NodeType.Leaf) {
                         chrome.tabs.query({ currentWindow: true }, (tabs: chrome.tabs.Tab[]) => {
                             const existingTab = tabs.filter((tab) => {
                                 return tab.url === (currentNode.data as LeafDataNode).url;
@@ -213,9 +264,10 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                             width: '100%',
                             padding: 8,
                             paddingLeft: 8,
-                            backgroundColor: (currentNode.isSelected ? (currentNode.isInternal ? 'rgba(0, 0, 0, 0.04)' : 'white') : 'transparent'),
+                            backgroundColor: (currentNode.isSelected ? (currentNode.isLeaf ? 'white' : 'rgba(0, 0, 0, 0.04)') : (hovered ? 'rgba(0, 0, 0, 0.04)' : 'transparent')),
                             boxShadow: (currentNode.isSelected && currentNode.isLeaf) ? '1px 1px 1px rgba(0, 0, 0, 0.1)' : '0px 0px 0px rgba(0, 0, 0, 0.1)',
-                            borderRadius: '10px'
+                            borderRadius: '10px',
+                            transition: "background-color 0.01s ease-in-out",
                         }}
                         className='space-content-component-tree-node-title'
                     >

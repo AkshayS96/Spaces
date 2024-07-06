@@ -19,9 +19,9 @@
 }
 
 .space-content-component-tree-node-title:hover {
-    background-color: rgba(0, 0, 0, 0.04) !important;
-    border-radius: 10px;
-    transition: background-color 0.01s ease-in-out;
+    /* background-color: rgba(0, 0, 0, 0.04) !important; */
+    /* border-radius: 10px; */
+    /* transition: background-color 0.01s ease-in-out; */
 }
 
 .space-content-component-new-tab-button-holder:hover {
