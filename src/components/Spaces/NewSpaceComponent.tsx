@@ -1,4 +1,4 @@
-import { Button, Flex, Input } from 'antd';
+import { Button, ConfigProvider, Flex, Input } from 'antd';
 import { Typography } from 'antd';
 import { useEffect, useState } from 'react';
 
@@ -74,10 +74,19 @@ function NewSpaceComponent(props: NewSpaceComponentProps) {
                 </Flex>
             </Flex>
             <Flex vertical style={{ justifySelf: "flex-end", justifyContent: "space-around", width: "100%" }} gap={5}>
-                <Button type='primary' onClick={() => {
-                    props.onCreateSpace(name);
-                }}
-                    disabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
+                <ConfigProvider theme={{
+                    components: {
+                        Button: {
+                            defaultActiveBg: "black",
+                            colorPrimary: 'black',
+                        }
+                    }
+                }}>
+                    <Button type='primary' onClick={() => {
+                        props.onCreateSpace(name);
+                    }}
+                        disabled={name?.length === 0 || name?.length > 20}>Create Space</Button>
+                </ConfigProvider>
                 <Button disabled={props.disableCancel} type="text" onClick={() => { props.onCancel(); }} style={{
                 }}>Cancel</Button>
             </Flex>
