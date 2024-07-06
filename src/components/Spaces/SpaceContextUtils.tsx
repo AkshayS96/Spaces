@@ -8,8 +8,8 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
     const [searchStr, setSearchStr] = useState<string>("");
 
     useEffect(() => {
-        chrome.storage.local.get(`spaces-extension-space-${spaceId}`, (items: { [key: string]: any }) => {
-            const storedSpaceData = items[`spaces-extension-space-${spaceId}`]
+
+        const onData = (storedSpaceData: any) => {
             if (storedSpaceData) {
                 if (!storedSpaceData.themeColor) {
                     storedSpaceData.themeColor = "#E9A997";
@@ -17,7 +17,22 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
                 setSpaceData(storedSpaceData);
                 setSpaceLoading(false);
             }
-        });
+        };
+
+
+
+        const listener = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+            const spaceData = changes[`spaces-extension-space-${spaceId}`];
+            if (spaceData) {
+                onData(spaceData.newValue);
+            }
+        };
+
+        chrome.storage.local.get(`spaces-extension-space-${spaceId}`, (items) => onData(items[`spaces-extension-space-${spaceId}`]));
+        chrome.storage.local.onChanged.addListener(listener);
+        return () => {
+            chrome.storage.local.onChanged.removeListener(listener);
+        }
     }, []);
 
     const onSpaceDataChange = (newSpaceData: SpaceDataNode) => {

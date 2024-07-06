@@ -1,11 +1,36 @@
 
 chrome.runtime.onInstalled.addListener(async () => {
-    // Add dynamic context menu here
+    chrome.contextMenus.create({ title: "Save to Spaces", id: "saveToSpaces" });
 });
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === "saveToSpaces") {
-        console.log(info);
+        chrome.storage.local.get('spaces-current-space', (items) => {
+            if (items["spaces-current-space"]) {
+                console.log(items);
+                chrome.storage.local.get(`spaces-extension-space-${items["spaces-current-space"]}`, (spaceDataItems) => {
+                    const spaceData = spaceDataItems[`spaces-extension-space-${items["spaces-current-space"]}`];
+                    console.log(spaceDataItems);
+                    if (spaceData) {
+                        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                            if (tabs?.length) {
+                                const tab = tabs[0];
+                                spaceData.children.push({
+                                    id: Date.now().toString(),
+                                    name: tab.title ?? 'New Tab',
+                                    url: tab.url,
+                                    iconSrc: tab.favIconUrl,
+                                    type: 0,
+                                });
+                                chrome.storage.local.set({
+                                    [`spaces-extension-space-${items["spaces-current-space"]}`]: spaceData,
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 });
 

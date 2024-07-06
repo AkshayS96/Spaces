@@ -230,15 +230,13 @@ export default function SpaceContentTreeNode({ node: currentNode, style, dragHan
                                 });
                             }
                         });
-                    }
-
-                    if (event.metaKey) {
+                        currentNode.tree.deselectAll();
+                        currentNode.select();
+                    } else if (event.metaKey) {
                         currentNode.selectMulti();
                         event.stopPropagation();
                         return;
-                    }
-
-                    if (currentNode.isInternal) {
+                    } else if (currentNode.isInternal) {
                         currentNode.toggle();
                         currentNode.deselect();
                         currentNode.tree.deselectAll();
