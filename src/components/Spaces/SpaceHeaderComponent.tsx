@@ -1,17 +1,19 @@
 import { SpaceDataNode } from './Types';
-import { Button, ColorPicker, ConfigProvider, Dropdown, Flex, Input, Space, Typography } from 'antd';
+import { Button, ColorPicker, ConfigProvider, Dropdown, Flex, Input, Popover, Space, Typography } from 'antd';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { Utils } from './Utils';
 import { useContext, useMemo, useState } from 'react';
-
-import './SpaceHeaderComponent.css';
+import data from '@emoji-mart/data'
+import Picker from '@emoji-mart/react'
 import { SpaceContext } from './SpaceContextUtils';
 import { Color } from 'antd/es/color-picker';
+
+import './SpaceHeaderComponent.css';
+import { Emoji } from 'emoji-mart';
 
 function SpaceHeaderComponent() {
     const [isRenameSpace, setIsRenameSpace] = useState<boolean>(false);
     const [hovered, setHovered] = useState<boolean>(false);
-
     const spaceContext = useContext(SpaceContext);
 
     const menuItems = [
@@ -51,8 +53,14 @@ function SpaceHeaderComponent() {
                 }
             }
         }}>
-            <Flex justify="space-between" style={{ paddingLeft: 12 }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
-                <Flex>
+            <Flex justify="space-between" style={{ paddingLeft: 6 }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
+                <Flex align='center' gap={8}>
+                    <Popover trigger={["click"]} content={<Picker data={data} onEmojiSelect={(emoji: any) => spaceContext.onSpaceEmojiChange(emoji.native)} />}>
+                        <Typography.Title level={4} style={{ margin: 0, border: '0px' }}>
+                            {spaceContext.spaceData?.emoji ?? '😍'}
+                        </Typography.Title>
+                    </Popover>
+
                     <Typography.Title
                         onClick={() => setIsRenameSpace(true)}
                         editable={

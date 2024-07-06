@@ -11,6 +11,7 @@ import { useEffect } from 'react';
 
 type Props = Readonly<{
     spaceId: string,
+    currentSpaceId: string,
     onNewSpace: () => void
     onDelete: (spaceId: string) => void
 }>;
@@ -22,6 +23,7 @@ function SpaceComponent(props: Props) {
         searchStr,
         onSetThemeColor,
         onSpaceNameChange,
+        onSpaceEmojiChange,
         onSpaceDelete,
         onNewSpace,
         onSearchChange,
@@ -33,8 +35,13 @@ function SpaceComponent(props: Props) {
     } = useSpaceData(props.spaceId, props.onDelete, props.onNewSpace);
 
     useEffect(() => {
-        document.body.style.background = spaceData?.themeColor ?? '';  // This is just a hack as it is really hard to set color on body
-    }, [spaceData])
+        if (props.currentSpaceId === spaceData?.id) {
+            document.body.style.transition = 'background-color 300ms linear';
+            document.body.style.background = spaceData?.themeColor ?? '';  // This is just a hack as it is really hard to set color on body
+        }
+    }, [spaceData, props.currentSpaceId]);
+
+    console.log(spaceData?.id, props.currentSpaceId);
 
     return (
         <SpaceContext.Provider value={{
@@ -42,6 +49,7 @@ function SpaceComponent(props: Props) {
             searchStr,
             onSetThemeColor,
             onSpaceNameChange,
+            onSpaceEmojiChange,
             onSpaceDelete,
             onNewSpace,
             onSearchChange,

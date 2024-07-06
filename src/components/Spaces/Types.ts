@@ -23,6 +23,7 @@ export type SpaceDataNode = {
     id: string,
     name: string,
     type: NodeType
+    emoji?: string
     children: Array<ChildDataNodeType>
     themeColor?: string,
 };

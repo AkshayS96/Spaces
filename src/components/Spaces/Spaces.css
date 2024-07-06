@@ -7,6 +7,10 @@
     justify-content: center;
 }
 
+.swiper-pagination-bullet-active {
+    background-color: black;
+}
+
 kbd {
     background-color: #eee;
     border-radius: 3px;

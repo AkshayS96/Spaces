@@ -57,7 +57,7 @@ function Spaces() {
         const tippyInstances = tippy(`#swiper-navigation-bullet`);
         tippyInstances.forEach((instance, index) => {
             instance.setProps({
-                content: `<div class="swiper-bullet-pagination-custom" >${spaces[index].name}  <kbd>Ctrl+Shift+${index}</kbd></div>`,
+                content: `<div class="swiper-bullet-pagination-custom" > ${spaces[index].name} </div>`, //index < 9 ? `<div class="swiper-bullet-pagination-custom" >${spaces[index].name}  <kbd>Ctrl+Shift+${index}</kbd></div>` : "",
                 allowHTML: true,
             })
         })
@@ -82,7 +82,9 @@ function Spaces() {
         if (swiper) {
             swiper.slideNext();
         }
-        setCurrentSpace(currentSpace + 1);
+        if (currentSpace !== newSpaces.length - 1) {
+            setCurrentSpace(currentSpace + 1);
+        }
         setIsCreateSpace(false);
     };
 
@@ -96,6 +98,9 @@ function Spaces() {
         });
         chrome.storage.local.set({ "spaces-extension-spaceIds": newSpaces });
         chrome.storage.local.remove(`spaces-extension-space-${spaceIdToDelete}`);
+        if (currentSpace !== 0) {
+            setCurrentSpace(currentSpace - 1);
+        }
         setSpaces(newSpaces);
     };
 
@@ -138,6 +143,7 @@ function Spaces() {
                                     <SwiperSlide style={{ "height": "100%" }} key={space.id} >
                                         <SpaceComponent
                                             spaceId={space.id}
+                                            currentSpaceId={spaces[currentSpace].id}
                                             onNewSpace={() => setIsCreateSpace(true)}
                                             onDelete={onDeleteSpace}
                                         />

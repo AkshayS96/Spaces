@@ -179,12 +179,17 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
         setSearchStr(searchStr);
     }
 
+    const onSpaceEmojiChange = (nativeEmoji: string) => {
+        onSpaceDataChange({ ...spaceData!, emoji: nativeEmoji });
+    }
+
     return {
         spaceData,
         spaceLoading,
         searchStr,
         onSetThemeColor,
         onSpaceNameChange,
+        onSpaceEmojiChange,
         onSpaceDelete,
         onNewSpace,
         onSearchChange,
@@ -201,6 +206,7 @@ export const SpaceContext = createContext<{
     searchStr?: string,
     onSetThemeColor: (newColor: string) => void,
     onSpaceNameChange: (newName: string) => void,
+    onSpaceEmojiChange: (nativeEmoji: string) => void,
     onSpaceDelete: () => void,
     onNewSpace: () => void,
     onSearchChange: (searchStr: string) => void,
@@ -213,6 +219,7 @@ export const SpaceContext = createContext<{
     {
         onSetThemeColor: (_newColor: string) => { },
         onSpaceNameChange: (_newName: string) => { },
+        onSpaceEmojiChange: (nativeEmoji: string) => { },
         onSpaceDelete: () => { },
         onNewSpace: () => { },
         onSearchChange: (_searchStr: string) => { },
