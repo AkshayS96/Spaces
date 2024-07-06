@@ -13,9 +13,7 @@
         "sidePanel",
         "storage",
         "tabs",
-        "contextMenus",
-        "bookmarks",
-        "search"
+        "contextMenus"
     ],
     "background": {
         "service_worker": "service-worker.js",

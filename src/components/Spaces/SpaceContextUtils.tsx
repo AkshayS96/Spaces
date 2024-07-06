@@ -12,7 +12,7 @@ export const useSpaceData = (spaceId: string, onSpaceDeleteParent: (spaceId: str
         const onData = (storedSpaceData: any) => {
             if (storedSpaceData) {
                 if (!storedSpaceData.themeColor) {
-                    storedSpaceData.themeColor = "#E9A997";
+                    storedSpaceData.themeColor = "#fdf4f1";
                 }
                 setSpaceData(storedSpaceData);
                 setSpaceLoading(false);
