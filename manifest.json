@@ -1,13 +1,13 @@
 {
-    "name": "Folders",
+    "name": "Spaces",
     "version": "1.0.0",
     "manifest_version": 3,
     "side_panel": {
         "default_path": "js/index.html",
-        "default_title": "React Chrome Extension"
+        "default_title": "Spaces Chrome Extension"
     },
     "action": {
-        "default_title": "Click to open folders"
+        "default_title": "Click to open Spaces"
     },
     "permissions": [
         "sidePanel",

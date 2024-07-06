@@ -56,7 +56,7 @@ function getHtmlPlugins(chunks) {
     return chunks.map(
         (chunk) =>
             new HTMLPlugin({
-                title: "React extension",
+                title: "Spaces Chrome Extension",
                 filename: `${chunk}.html`,
                 chunks: [chunk],
             })
