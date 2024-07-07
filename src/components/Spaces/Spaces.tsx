@@ -60,7 +60,16 @@ function Spaces() {
                 content: `<div class="swiper-bullet-pagination-custom" > ${spaces[index].name} </div>`, //index < 9 ? `<div class="swiper-bullet-pagination-custom" >${spaces[index].name}  <kbd>Ctrl+Shift+${index}</kbd></div>` : "",
                 allowHTML: true,
             })
-        })
+        });
+
+        // Add context menu here
+        chrome.contextMenus.removeAll(() => {
+            // Now add all the new ones
+            const parentId = chrome.contextMenus.create({ id: "saveToSpaces", title: "Spaces" });
+            spaces.forEach((space) => {
+                chrome.contextMenus.create({ id: `space-${space.id}`, title: `Save to ${space.name}`, parentId: parentId });
+            });
+        });
 
         return () => {
             tippyInstances.forEach((instance) => {
@@ -68,10 +77,6 @@ function Spaces() {
             })
         }
     }, [spaces]);
-
-    useEffect(() => {
-        chrome.storage.local.set({ "spaces-current-space": spaces[currentSpace]?.id });
-    }, [currentSpace])
 
     const onCreateSpace = (name: string) => {
         const newSpace = { id: Utils.getUniqueId(), name };

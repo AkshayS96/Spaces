@@ -1,6 +1,6 @@
 {
     "name": "Spaces",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "manifest_version": 3,
     "side_panel": {
         "default_path": "js/index.html",
@@ -22,10 +22,17 @@
     "commands": {
         "toggle-extension-panel": {
             "suggested_key": {
-                "default": "Ctrl+Shift+F",
-                "mac": "MacCtrl+Shift+F"
+                "default": "Ctrl+Shift+S",
+                "mac": "MacCtrl+Shift+S"
             },
             "description": "Open extension in side panel"
+        },
+        "add-current-tab": {
+            "suggested_key": {
+                "default": "Ctrl+Shift+T",
+                "mac": "MacCtrl+Shift+T"
+            },
+            "description": "Add tab to space"
         }
     }
 }

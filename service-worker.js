@@ -1,36 +1,31 @@
+function saveToSpace(spaceId) {
+    chrome.storage.local.get(`spaces-extension-space-${spaceId}`, (spaceDataItems) => {
+        const spaceData = spaceDataItems[`spaces-extension-space-${spaceId}`];
+        if (spaceData) {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                if (tabs?.length) {
+                    const tab = tabs[0];
+                    spaceData.children.push({
+                        id: Date.now().toString(),
+                        name: tab.title ?? 'New Tab',
+                        url: tab.url,
+                        iconSrc: tab.favIconUrl,
+                        type: 0,
+                    });
+                    chrome.storage.local.set({
+                        [`spaces-extension-space-${spaceId}`]: spaceData,
+                    });
+                }
+            });
+        }
+    });
 
-chrome.runtime.onInstalled.addListener(async () => {
-    chrome.contextMenus.create({ title: "Save to Spaces", id: "saveToSpaces" });
-});
+}
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    if (info.menuItemId === "saveToSpaces") {
-        chrome.storage.local.get('spaces-current-space', (items) => {
-            if (items["spaces-current-space"]) {
-                console.log(items);
-                chrome.storage.local.get(`spaces-extension-space-${items["spaces-current-space"]}`, (spaceDataItems) => {
-                    const spaceData = spaceDataItems[`spaces-extension-space-${items["spaces-current-space"]}`];
-                    console.log(spaceDataItems);
-                    if (spaceData) {
-                        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-                            if (tabs?.length) {
-                                const tab = tabs[0];
-                                spaceData.children.push({
-                                    id: Date.now().toString(),
-                                    name: tab.title ?? 'New Tab',
-                                    url: tab.url,
-                                    iconSrc: tab.favIconUrl,
-                                    type: 0,
-                                });
-                                chrome.storage.local.set({
-                                    [`spaces-extension-space-${items["spaces-current-space"]}`]: spaceData,
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+    if (info.parentMenuItemId === "saveToSpaces") {
+        const spaceId = info.menuItemId.split("-")[1];
+        saveToSpace(spaceId);
     }
 });
 
@@ -52,20 +47,12 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
             }
             break;
         }
-        case "space-1":
-        case "space-2":
-        case "space-3":
-        case "space-4":
-        case "space-5":
-        case "space-6":
-        case "space-7":
-        case "space-8":
-        case "space-9": {
-            const spaceId = command.split("-")[1];
-            if (spaceId) {
-                console.log(spaceId);
-            }
-            break;
+        case "add-current-tab": {
+            chrome.storage.local.get('spaces-current-space', (items) => {
+                if (items["spaces-current-space"]) {
+                    saveToSpace(items["spaces-current-space"]);
+                }
+            });
         }
     }
 });

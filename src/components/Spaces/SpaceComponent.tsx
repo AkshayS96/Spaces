@@ -39,9 +39,8 @@ function SpaceComponent(props: Props) {
             document.body.style.transition = 'background-color 300ms linear';
             document.body.style.background = spaceData?.themeColor ?? '';  // This is just a hack as it is really hard to set color on body
         }
+        chrome.storage.local.set({ "spaces-current-space": spaceData?.id });
     }, [spaceData, props.currentSpaceId]);
-
-    console.log(spaceData?.id, props.currentSpaceId);
 
     return (
         <SpaceContext.Provider value={{
