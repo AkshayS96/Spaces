@@ -43,8 +43,8 @@ function Spaces() {
                     }
                 });
                 setSpaces(spacesLocal);
-                setisLoading(false);
             }
+            setisLoading(false);
         }
         setupSpaces();
     }, []);
